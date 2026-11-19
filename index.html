@@ -6,57 +6,70 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Referral funding form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
-  body { margin: 0; background: #f4f6f8; color: #1f2933; font: 16px/1.5 Arial, Helvetica, sans-serif; }
+  body { margin: 0; background: #F5F5F5; color: #353535; font: 16px/1.5 Raleway, system-ui, sans-serif; }
   .wrap { max-width: 720px; margin: 0 auto; padding: 16px; }
-  header .org { font-size: 14px; letter-spacing: .04em; text-transform: uppercase; color: #52606d; margin: 8px 0 0; }
-  h1 { font-size: 26px; margin: 4px 0 12px; overflow-wrap: anywhere; }
-  .notice { background: #fff8e1; border: 1px solid #e0b000; border-radius: 6px; padding: 10px 12px; margin: 0 0 12px; }
-  .legend { margin: 0 0 16px; color: #52606d; }
-  fieldset.section { background: #fff; border: 1px solid #cbd2d9; border-radius: 6px; margin: 0 0 16px; padding: 12px 14px 14px; min-width: 0; }
-  fieldset.section legend { font-weight: bold; padding: 0 4px; max-width: 100%; overflow-wrap: anywhere; }
-  .req { color: #b42318; }
-  label { display: block; font-weight: bold; margin: 8px 0 4px; }
-  .hint { font-size: 14px; color: #52606d; margin: 2px 0 6px; }
-  input[type=text], input[type=date], input[type=tel] { width: 100%; max-width: 100%; min-width: 0; font: inherit; padding: 9px 10px; border: 1px solid #7b8794; border-radius: 4px; background: #fff; }
-  input:focus, button:focus { outline: 3px solid #1c6dd0; outline-offset: 1px; }
-  .invalid { border-color: #b42318 !important; background: #fff1f0 !important; box-shadow: 0 0 0 2px #b42318; }
+  .site-header { background: #fff; border-bottom: 4px solid #F5B734; }
+  .site-header .bar { max-width: 720px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; min-height: 80px; }
+  .site-header img { height: 56px; width: auto; max-width: 100%; display: block; }
+  .logo-fallback { color: #0D326D; font-weight: 600; font-size: 20px; }
+  .topbar { height: 8px; background: #0A1E3D; }
+  h1 { font-size: 26px; font-weight: 600; color: #0D326D; margin: 4px 0 12px; overflow-wrap: anywhere; }
+  h2 { color: #0D326D; font-weight: 600; margin-top: 0; }
+  a { color: #0D326D; }
+  .notice { background: #FEF6E4; border: 1px solid #F0DFB4; border-left: 5px solid #F5B734; border-radius: 6px; color: #353535; padding: 10px 12px; margin: 0 0 12px; }
+  .legend { margin: 0 0 16px; color: #555; }
+  fieldset.section { background: #fff; border: 1px solid #DADDE3; border-top: 3px solid #0D326D; border-radius: 6px; margin: 0 0 16px; padding: 12px 14px 14px; min-width: 0; }
+  fieldset.section legend { font-weight: 600; color: #0D326D; padding: 0 4px; max-width: 100%; overflow-wrap: anywhere; }
+  .req { color: #B42318; }
+  label { display: block; font-weight: 600; margin: 8px 0 4px; }
+  .hint { font-size: 14px; color: #555; margin: 2px 0 6px; }
+  input[type=text], input[type=date], input[type=tel] { width: 100%; max-width: 100%; min-width: 0; font: inherit; color: #353535; padding: 9px 10px; border: 1px solid #6B7280; border-radius: 5px; background: #fff; }
+  input:focus, button:focus, input:focus-visible, button:focus-visible { outline: 3px solid #0D326D; outline-offset: 2px; }
+  .invalid { border-color: #B42318 !important; background: #fff1f0 !important; box-shadow: 0 0 0 2px #B42318; }
   .row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px; align-items: end; margin: 0 0 8px; }
   .row > div { min-width: 0; }
-  .row label { margin-top: 0; font-weight: normal; font-size: 14px; }
-  .upload { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #cbd2d9; }
+  .row label { margin-top: 0; font-weight: 400; font-size: 14px; }
+  .upload { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #BFC5CE; }
   .upload input[type=file] { max-width: 100%; font: inherit; }
-  .upload .ulabel { font-weight: bold; display: block; margin-bottom: 4px; }
+  .upload .ulabel { font-weight: 600; display: block; margin-bottom: 4px; }
   .files { list-style: none; margin: 6px 0 0; padding: 0; }
   .files li { display: flex; gap: 8px; align-items: center; justify-content: space-between; padding: 4px 0; overflow-wrap: anywhere; }
-  .ferr { color: #b42318; font-size: 14px; margin: 4px 0 0; }
-  button { font: inherit; cursor: pointer; border-radius: 4px; border: 1px solid #1c6dd0; background: #fff; color: #1c6dd0; padding: 9px 14px; }
-  button.primary { background: #1c6dd0; color: #fff; font-weight: bold; }
+  .ferr { color: #B42318; font-size: 14px; margin: 4px 0 0; }
+  button { font: inherit; font-weight: 600; cursor: pointer; border-radius: 5px; border: 1px solid #0D326D; background: #fff; color: #0D326D; padding: 9px 14px; }
+  button.primary { background: #F5B734; border-color: #F5B734; color: #0D326D; font-weight: 600; padding: 10px 18px; }
+  button.primary:hover:not(:disabled) { background: #E0A21F; border-color: #E0A21F; }
   button:disabled { opacity: .6; cursor: not-allowed; }
   .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
-  #status { color: #52606d; }
-  #thanks { background: #fff; border: 1px solid #cbd2d9; border-radius: 6px; padding: 20px; }
-  #loading, #message { background: #fff; border: 1px solid #cbd2d9; border-radius: 6px; padding: 20px; }
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+  #status { color: #555; }
+  #thanks, #loading, #message { background: #fff; border: 1px solid #DADDE3; border-radius: 6px; padding: 20px; }
+  .overlay { position: fixed; inset: 0; background: rgba(10,30,61,.6); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
   .overlay[hidden], [hidden] { display: none !important; }
-  .modal { background: #fff; border-radius: 8px; max-width: 480px; width: 100%; padding: 20px; max-height: 90vh; overflow: auto; }
+  .modal { background: #fff; border-radius: 8px; border-top: 6px solid #0D326D; max-width: 480px; width: 100%; padding: 20px; max-height: 90vh; overflow: auto; }
   .modal p { margin: 0 0 16px; overflow-wrap: anywhere; }
+  .site-footer { max-width: 720px; margin: 0 auto; padding: 8px 16px 24px; color: #555; font-size: 14px; text-align: center; }
   @media (max-width: 560px) {
     .row { grid-template-columns: 1fr 1fr; }
     .row .amt { grid-column: 1 / -1; }
     .row .rm { grid-column: 1 / -1; }
     h1 { font-size: 22px; }
+    .site-header .bar { min-height: 68px; }
+    .site-header img { height: 44px; }
   }
 </style>
 </head>
 <body>
+<header class="site-header">
+  <div class="bar">
+    <img src="https://libertybehaviouralservices.com/wp-content/uploads/2025/06/Liberty-1.png" width="235" height="85" alt="Liberty Behavioural Services" onerror="var f=document.createElement('span');f.className='logo-fallback';f.id='logoFallback';f.textContent='Liberty Behavioural Services';this.replaceWith(f);">
+  </div>
+</header>
+<div class="topbar"></div>
 <div class="wrap">
-  <header>
-    <p class="org">Liberty Behavioural</p>
-    <h1>Referral funding form</h1>
-  </header>
+  <h1>Referral funding form</h1>
 
   <p id="loading" role="status">Loading...</p>
   <p id="message" hidden tabindex="-1"></p>
@@ -114,6 +127,8 @@
     <p>Thank you. We have received your referral funding form and will be in touch soon. You can now close this page.</p>
   </div>
 </div>
+
+<footer class="site-footer">Liberty Behavioural Services &middot; Registered NDIS provider</footer>
 
 <div class="overlay" id="overlay" hidden>
   <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="modalMsg" id="modal">
