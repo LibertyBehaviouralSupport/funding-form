@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Renewal funding form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: #F5F5F5; color: #353535; font: 16px/1.5 Raleway, system-ui, sans-serif; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .site-header { background: #fff; border-bottom: 4px solid #F5B734; }
+  .site-header .bar { max-width: 720px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; min-height: 80px; }
+  .site-header img { height: 56px; width: auto; max-width: 100%; display: block; }
+  .logo-fallback { color: #0D326D; font-weight: 600; font-size: 20px; }
+  .topbar { height: 8px; background: #0A1E3D; }
+  h1 { font-size: 26px; font-weight: 600; color: #0D326D; margin: 4px 0 12px; overflow-wrap: anywhere; }
+  h2 { color: #0D326D; font-weight: 600; margin-top: 0; }
+  a { color: #0D326D; }
+  .notice { background: #FEF6E4; border: 1px solid #F0DFB4; border-left: 5px solid #F5B734; border-radius: 6px; color: #353535; padding: 10px 12px; margin: 0 0 12px; }
+  .legend { margin: 0 0 16px; color: #555; }
+  fieldset.section { background: #fff; border: 1px solid #DADDE3; border-top: 3px solid #0D326D; border-radius: 6px; margin: 0 0 16px; padding: 12px 14px 14px; min-width: 0; }
+  fieldset.section legend { font-weight: 600; color: #0D326D; padding: 0 4px; max-width: 100%; overflow-wrap: anywhere; }
+  .req { color: #B42318; }
+  label { display: block; font-weight: 600; margin: 8px 0 4px; }
+  .hint { font-size: 14px; color: #555; margin: 2px 0 6px; }
+  input[type=text], input[type=date], input[type=tel], input[type=email] { width: 100%; max-width: 100%; min-width: 0; font: inherit; color: #353535; padding: 9px 10px; border: 1px solid #6B7280; border-radius: 5px; background: #fff; }
+  input:focus, button:focus, input:focus-visible, button:focus-visible { outline: 3px solid #0D326D; outline-offset: 2px; }
+  .invalid { border-color: #B42318 !important; background: #fff1f0 !important; box-shadow: 0 0 0 2px #B42318; }
+  .row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px; align-items: end; margin: 0 0 8px; }
+  .row > div { min-width: 0; }
+  .row label { margin-top: 0; font-weight: 400; font-size: 14px; }
+  .upload { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #BFC5CE; }
+  .upload input[type=file] { max-width: 100%; font: inherit; }
+  .upload .ulabel { font-weight: 600; display: block; margin-bottom: 4px; }
+  .files { list-style: none; margin: 6px 0 0; padding: 0; }
+  .files li { display: flex; gap: 8px; align-items: center; justify-content: space-between; padding: 4px 0; overflow-wrap: anywhere; }
+  .ferr { color: #B42318; font-size: 14px; margin: 4px 0 0; }
+  button { font: inherit; font-weight: 600; cursor: pointer; border-radius: 5px; border: 1px solid #0D326D; background: #fff; color: #0D326D; padding: 9px 14px; }
+  button.primary { background: #F5B734; border-color: #F5B734; color: #0D326D; font-weight: 600; padding: 10px 18px; }
+  button.primary:hover:not(:disabled) { background: #E0A21F; border-color: #E0A21F; }
+  button:disabled { opacity: .6; cursor: not-allowed; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
+  #status { color: #555; }
+  #thanks, #loading, #message { background: #fff; border: 1px solid #DADDE3; border-radius: 6px; padding: 20px; }
+  .overlay { position: fixed; inset: 0; background: rgba(10,30,61,.6); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+  .overlay[hidden], [hidden] { display: none !important; }
+  .modal { background: #fff; border-radius: 8px; border-top: 6px solid #0D326D; max-width: 480px; width: 100%; padding: 20px; max-height: 90vh; overflow: auto; }
+  .modal p { margin: 0 0 16px; overflow-wrap: anywhere; }
+  .choice { display: flex; align-items: center; gap: 10px; font-weight: 400; margin: 6px 0; }
+  .choice input { width: 22px; height: 22px; margin: 0; flex: none; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .two > div { min-width: 0; }
+  .sub { margin-top: 12px; }
+  input:disabled { background: #EEF0F3; color: #6B7280; }
+  .site-footer { max-width: 720px; margin: 0 auto; padding: 8px 16px 24px; color: #555; font-size: 14px; text-align: center; }
+  @media (max-width: 560px) {
+    .row { grid-template-columns: 1fr 1fr; }
+    .row .amt { grid-column: 1 / -1; }
+    .row .rm { grid-column: 1 / -1; }
+    h1 { font-size: 22px; }
+    .two { grid-template-columns: 1fr; }
+    .site-header .bar { min-height: 68px; }
+    .site-header img { height: 44px; }
+  }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="bar">
+    <img src="https://libertybehaviouralservices.com/wp-content/uploads/2025/06/Liberty-1.png" width="235" height="85" alt="Liberty Behavioural Services" onerror="var f=document.createElement('span');f.className='logo-fallback';f.id='logoFallback';f.textContent='Liberty Behavioural Services';this.replaceWith(f);">
+  </div>
+</header>
+<div class="topbar"></div>
+<div class="wrap">
+  <h1>Renewal funding form</h1>
+
+  <p id="loading" role="status">Loading...</p>
+  <p id="message" hidden tabindex="-1"></p>
+
+  <div id="formArea" hidden>
+    <p>To ensure a seamless continuation of our Behaviour Support services, please provide the following information. These details are required in order to create a Service Agreement.</p>
+    <p class="notice" id="leaveNotice">If you close this page before submitting, you will lose all of the information you put in here.</p>
+    <p class="legend"><span class="req">*</span> = compulsory</p>
+
+    <form id="form" novalidate>
+      <fieldset class="section" id="sec-behaviourFunding">
+        <legend>1. <span class="req">*</span> How much funding is allocated for the support category of behaviour support?</legend>
+        <label for="behaviourFunding">Amount ($) <span class="req">*</span></label>
+        <input type="text" id="behaviourFunding" name="behaviourFunding" inputmode="decimal" autocomplete="off" aria-required="true">
+      </fieldset>
+
+      <fieldset class="section" id="sec-hours">
+        <legend>2. <span class="req">*</span> How many hours are allocated for specialist behaviour and behaviour management?</legend>
+        <div class="two">
+          <div>
+            <label for="specialistHours">Specialist behaviour intervention support (hours) <span class="req">*</span></label>
+            <input type="text" id="specialistHours" name="specialistHours" inputmode="decimal" autocomplete="off" aria-required="true">
+          </div>
+          <div>
+            <label for="managementHours">Behaviour support plan / behaviour management (hours) <span class="req">*</span></label>
+            <input type="text" id="managementHours" name="managementHours" inputmode="decimal" autocomplete="off" aria-required="true">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="section" id="sec-fundingPeriods">
+        <legend>3. <span class="req">*</span> Please advise the funding period dates and amounts</legend>
+        <p class="hint">Enter the start date, end date and amount for each funding period.</p>
+        <div id="rows"></div>
+        <button type="button" id="addRow">Add another funding period</button>
+      </fieldset>
+
+      <fieldset class="section" id="sec-fundManagement">
+        <legend>4. <span class="req">*</span> How are the funds managed?</legend>
+        <label class="choice" for="fm-ndia"><input type="radio" name="fundManagement" id="fm-ndia" value="NDIA-managed"> NDIA-managed</label>
+        <label class="choice" for="fm-plan"><input type="radio" name="fundManagement" id="fm-plan" value="Plan-managed"> Plan-managed</label>
+        <label class="choice" for="fm-self"><input type="radio" name="fundManagement" id="fm-self" value="Self-managed"> Self-managed</label>
+        <div id="pmBox" class="sub" hidden>
+          <label for="planManagerEmail">Plan manager's email address <span class="req">*</span></label>
+          <input type="email" id="planManagerEmail" name="planManagerEmail" inputmode="email" autocomplete="off" aria-required="true">
+        </div>
+      </fieldset>
+
+      <fieldset class="section" id="sec-nominee">
+        <legend>5. <span class="req">*</span> Please advise who the Plan Nominee is, if there is one, and who signs the documentation</legend>
+        <label for="nomineeName">Plan Nominee's name <span class="req">*</span></label>
+        <input type="text" id="nomineeName" name="nomineeName" autocomplete="off" aria-required="true">
+        <label class="choice" for="noNominee"><input type="checkbox" id="noNominee" name="noNominee"> There is no Plan Nominee</label>
+        <label for="signerName">Name of the person who signs the documentation <span class="req">*</span></label>
+        <input type="text" id="signerName" name="signerName" autocomplete="off" aria-required="true">
+        <label for="signerRole">Their relationship or role (e.g. participant, parent, guardian, Plan Nominee) <span class="req">*</span></label>
+        <input type="text" id="signerRole" name="signerRole" autocomplete="off" aria-required="true">
+        <label for="signerEmail">Their email address <span class="req">*</span></label>
+        <input type="email" id="signerEmail" name="signerEmail" inputmode="email" autocomplete="off" aria-required="true">
+      </fieldset>
+
+      <fieldset class="section" id="sec-upload">
+        <legend>6. <span class="req">*</span> Please upload a screenshot from the NDIA portal or a copy of the new NDIS plan</legend>
+        <p class="hint" id="file-hint">At least 1 file, up to 2 files. PNG, JPEG, WebP, HEIC or PDF, 8 MB each.</p>
+        <div class="upload" style="border-top:0;margin-top:0;padding-top:0"></div>
+      </fieldset>
+
+      <div class="actions">
+        <button type="submit" class="primary" id="submitBtn">Submit</button>
+        <span id="status" role="status" aria-live="polite"></span>
+      </div>
+    </form>
+  </div>
+
+  <div id="thanks" hidden tabindex="-1">
+    <h2>Thank you</h2>
+    <p>Thank you. We have received your renewal funding form and will be in touch soon. You can now close this page.</p>
+  </div>
+</div>
+
+<footer class="site-footer">Liberty Behavioural Services &middot; Registered NDIS provider</footer>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="modalMsg" id="modal">
+    <p id="modalMsg"></p>
+    <button type="button" class="primary" id="modalOk">OK</button>
+  </div>
+</div>
+
+<script>/* Liberty Behavioural referral funding form: answer rules.
+ * Runs unchanged in a browser, Apps Script (V8) and Node. */
+
+var LRF_MESSAGES = {
+  vague: 'Unfortunately the NDIS will not allow us to begin/continue services without all of the information requested here. Could you please obtain the necessary information before submitting this form?',
+  zero: 'Unfortunately we cannot begin services with a $0 plan. If you do not have the accurate amount yet, please fill out this form when you do have the accurate figure. You can find the accurate figure in the NDIA portal',
+  leave: 'Are you sure you want to close this page? You will lose all of the information you put in here.',
+  ndis: "Please enter the participant's 9-digit NDIS number.",
+  dates: 'Please check the plan period dates. The end date must be after the start date.',
+  email: 'Please enter a valid email address.',
+  filesRequired: 'Please upload at least one screenshot from the NDIA portal or a copy of the new NDIS plan.',
+  filesRenewal: 'Please upload no more than 2 files.',
+  filesTotal: 'Your uploaded files are too large to send together. Please remove some files or upload smaller screenshots. The limit is 25 MB in total.'
+};
+
+var LRF_FILE_LIMITS = {
+  maxBytes: 8 * 1024 * 1024,
+  maxPerSection: 3,
+  maxTotalBytes: 25 * 1024 * 1024,
+  mimeTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/heic', 'application/pdf'],
+  maxPlanRows: 6
+};
+
+var LRF_RENEWAL_LIMITS = { maxFiles: 2, maxPeriodRows: 12 };
+
+var LRF_VAGUE_PHRASES = [
+  'tba', 'tbc', 'tbd', 'to be advised', 'to be confirmed', 'to be determined',
+  'n/a', 'na', 'unknown', 'not sure', 'unsure', "don't know", 'dont know', 'idk',
+  'pending', 'waiting', 'later', 'asap', 'see email', 'see attached', 'same as above',
+  '?', '-', '.', 'x', 'xx', 'xxx'
+];
+
+function LRF_str(v) {
+  if (v === null || v === undefined) return '';
+  return String(v);
+}
+
+// Lower-case, trimmed, with punctuation removed and whitespace collapsed.
+function LRF_normalise(text) {
+  return LRF_str(text).toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+var LRF_VAGUE_NORMALISED = (function () {
+  var out = {};
+  for (var i = 0; i < LRF_VAGUE_PHRASES.length; i++) {
+    var n = LRF_normalise(LRF_VAGUE_PHRASES[i]);
+    if (n) out[n] = true;
+  }
+  return out;
+})();
+
+function LRF_isBlank(text) {
+  return LRF_str(text).trim() === '';
+}
+
+function LRF_isVague(text) {
+  var raw = LRF_str(text).trim().toLowerCase();
+  if (raw === '') return true;
+  var norm = LRF_normalise(raw);
+  // Punctuation-only answers such as "?", "-", "." or "--".
+  if (norm === '') return true;
+  if (LRF_VAGUE_NORMALISED[norm]) return true;
+  if (/(^|[^a-z0-9])(tba|tbc|tbd)([^a-z0-9]|$)/.test(raw)) return true;
+  if (/(^|[^a-z0-9])to\s+be\s+(advised|confirmed|determined)([^a-z0-9]|$)/.test(raw)) return true;
+  return false;
+}
+
+function parseMoney(text) {
+  var s = LRF_str(text).trim();
+  s = s.replace(/^aud\b\s*/i, '').replace(/\s*\baud$/i, '');
+  s = s.replace(/\s*\bdollars$/i, '');
+  s = s.replace(/[$,\s]/g, '');
+  if (!/^\d+(\.\d{1,2})?$/.test(s)) return null;
+  return parseFloat(s);
+}
+
+function LRF_parseHours(text) {
+  var s = LRF_str(text).trim().toLowerCase().replace(/\s*(hours|hour|hrs|hr)$/, '');
+  s = s.replace(/,/g, '').trim();
+  if (!/^\d+(\.\d+)?$/.test(s)) return null;
+  return parseFloat(s);
+}
+
+function LRF_parseDate(text) {
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(LRF_str(text).trim());
+  if (!m) return null;
+  var y = +m[1], mo = +m[2], d = +m[3];
+  if (mo < 1 || mo > 12 || d < 1) return null;
+  var dim = [31, (y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (d > dim[mo - 1]) return null;
+  return y * 10000 + mo * 100 + d; // comparable integer
+}
+
+function LRF_fail(popup, field, rowIndex) {
+  var r = { ok: false, popup: popup, field: field, message: LRF_MESSAGES[popup] };
+  if (typeof rowIndex === 'number') r.rowIndex = rowIndex;
+  return r;
+}
+
+function LRF_hasFile(files, key) {
+  return !!(files && files[key] && files[key].length > 0);
+}
+
+function LRF_validateMoneyField(value, field) {
+  var n = parseMoney(value);
+  if (n === null) return LRF_fail('vague', field);
+  if (n === 0) return LRF_fail('zero', field);
+  return null;
+}
+
+function validateSubmission(payload) {
+  payload = payload || {};
+  var files = payload.files || {};
+
+  // 1. NDIS number: always typed.
+  var ndisRaw = LRF_str(payload.ndisNumber);
+  if (LRF_isVague(ndisRaw)) return LRF_fail('vague', 'ndisNumber');
+  if (!/^\d{9}$/.test(ndisRaw.replace(/\s/g, ''))) return LRF_fail('ndis', 'ndisNumber');
+
+  // 2. Plan periods.
+  var rows = Array.isArray(payload.planPeriods) ? payload.planPeriods : [];
+  if (rows.length > LRF_FILE_LIMITS.maxPlanRows) return LRF_fail('vague', 'planPeriods', LRF_FILE_LIMITS.maxPlanRows);
+  var completeRows = 0;
+  for (var i = 0; i < rows.length; i++) {
+    var row = rows[i] || {};
+    if (LRF_isBlank(row.start) && LRF_isBlank(row.end) && LRF_isBlank(row.amount)) continue;
+    var s = LRF_parseDate(row.start), e = LRF_parseDate(row.end);
+    if (s === null || e === null || e <= s) return LRF_fail('dates', 'planPeriods', i);
+    var n = parseMoney(row.amount);
+    if (n === null) return LRF_fail('vague', 'planPeriods', i);
+    if (n === 0) return LRF_fail('zero', 'planPeriods', i);
+    completeRows++;
+  }
+  if (completeRows === 0 && !LRF_hasFile(files, 'planPeriods')) {
+    return LRF_fail('vague', 'planPeriods', 0);
+  }
+
+  // 3. Overall funding.
+  if (!(LRF_isBlank(payload.overallFunding) && LRF_hasFile(files, 'overallFunding'))) {
+    var f = LRF_validateMoneyField(payload.overallFunding, 'overallFunding');
+    if (f) return f;
+  }
+
+  // 4. Spent funding: nil / none / $0 are real answers.
+  if (!(LRF_isBlank(payload.spentFunding) && LRF_hasFile(files, 'spentFunding'))) {
+    var sp = LRF_str(payload.spentFunding).trim().toLowerCase().replace(/[.!\s]+$/, '');
+    if (sp !== 'nil' && sp !== 'none' && parseMoney(payload.spentFunding) === null) {
+      return LRF_fail('vague', 'spentFunding');
+    }
+  }
+
+  // 5. Stated hours.
+  if (!(LRF_isBlank(payload.statedHours) && LRF_hasFile(files, 'statedHours'))) {
+    var h = LRF_parseHours(payload.statedHours);
+    if (h === null || h <= 0) return LRF_fail('vague', 'statedHours');
+  }
+
+  return { ok: true };
+}
+
+function LRF_validEmail(text) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(LRF_str(text).trim());
+}
+
+// Renewal funding form. Same result shape as validateSubmission.
+function validateRenewal(payload) {
+  payload = payload || {};
+  var files = payload.files || {};
+  var n;
+
+  // 1. Behaviour support funding.
+  n = parseMoney(payload.behaviourFunding);
+  if (n === null) return LRF_fail('vague', 'behaviourFunding');
+  if (n === 0) return LRF_fail('zero', 'behaviourFunding');
+
+  // 2. Hours.
+  var sh = LRF_isBlank(payload.specialistHours) ? null : LRF_parseHours(payload.specialistHours);
+  if (sh === null) return LRF_fail('vague', 'specialistHours');
+  var mh = LRF_isBlank(payload.managementHours) ? null : LRF_parseHours(payload.managementHours);
+  if (mh === null) return LRF_fail('vague', 'managementHours');
+  if (sh === 0 && mh === 0) return LRF_fail('vague', 'specialistHours');
+
+  // 3. Funding periods.
+  var rows = Array.isArray(payload.fundingPeriods) ? payload.fundingPeriods : [];
+  if (rows.length > LRF_RENEWAL_LIMITS.maxPeriodRows) return LRF_fail('vague', 'fundingPeriods', LRF_RENEWAL_LIMITS.maxPeriodRows);
+  var complete = 0;
+  for (var i = 0; i < rows.length; i++) {
+    var row = rows[i] || {};
+    if (LRF_isBlank(row.start) && LRF_isBlank(row.end) && LRF_isBlank(row.amount)) continue;
+    var s = LRF_parseDate(row.start), e = LRF_parseDate(row.end);
+    if (s === null || e === null || e <= s) return LRF_fail('dates', 'fundingPeriods', i);
+    var a = parseMoney(row.amount);
+    if (a === null) return LRF_fail('vague', 'fundingPeriods', i);
+    if (a === 0) return LRF_fail('zero', 'fundingPeriods', i);
+    complete++;
+  }
+  if (complete === 0) return LRF_fail('vague', 'fundingPeriods', 0);
+
+  // 4. Fund management.
+  var fm = payload.fundManagement;
+  if (fm !== 'NDIA-managed' && fm !== 'Plan-managed' && fm !== 'Self-managed') return LRF_fail('vague', 'fundManagement');
+  if (fm === 'Plan-managed') {
+    if (LRF_isVague(payload.planManagerEmail)) return LRF_fail('vague', 'planManagerEmail');
+    if (!LRF_validEmail(payload.planManagerEmail)) return LRF_fail('email', 'planManagerEmail');
+  }
+
+  // 5. Plan nominee and signer.
+  if (payload.noNominee !== true && LRF_isVague(payload.nomineeName)) return LRF_fail('vague', 'nomineeName');
+  if (LRF_isVague(payload.signerName)) return LRF_fail('vague', 'signerName');
+  if (LRF_isVague(payload.signerRole)) return LRF_fail('vague', 'signerRole');
+  if (LRF_isVague(payload.signerEmail)) return LRF_fail('vague', 'signerEmail');
+  if (!LRF_validEmail(payload.signerEmail)) return LRF_fail('email', 'signerEmail');
+
+  // Files (compulsory, 1 to 2).
+  var list = files.renewal;
+  if (!Array.isArray(list) || list.length === 0) return LRF_fail('filesRequired', 'files');
+  {
+    if (list.length > LRF_RENEWAL_LIMITS.maxFiles) {
+      return { ok: false, popup: 'files', field: 'files', message: LRF_MESSAGES.filesRenewal };
+    }
+    for (var k = 0; k < list.length; k++) {
+      var problem = LRF_checkFile(list[k]);
+      if (problem) return { ok: false, popup: 'files', field: 'files', message: problem };
+    }
+  }
+  return { ok: true };
+}
+
+// File checks, shared by browser and server. Returns an error string or ''.
+function LRF_checkFile(file) {
+  if (!file || typeof file !== 'object') return 'Invalid file.';
+  var mime = LRF_str(file.mimeType).toLowerCase();
+  if (LRF_FILE_LIMITS.mimeTypes.indexOf(mime) === -1) {
+    return 'Only PNG, JPEG, WebP, HEIC and PDF files can be uploaded.';
+  }
+  return '';
+}
+
+function LRF_checkFileSize(bytes) {
+  return bytes > LRF_FILE_LIMITS.maxBytes ? 'Each file must be 8 MB or smaller.' : '';
+}
+
+function LRF_checkTotalSize(totalBytes) {
+  return totalBytes > LRF_FILE_LIMITS.maxTotalBytes ? LRF_MESSAGES.filesTotal : '';
+}
+
+function LRF_checkFileCount(count) {
+  return count > LRF_FILE_LIMITS.maxPerSection ? 'You can upload up to 3 files per section.' : '';
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    LRF_MESSAGES: LRF_MESSAGES,
+    LRF_FILE_LIMITS: LRF_FILE_LIMITS,
+    LRF_isVague: LRF_isVague,
+    LRF_parseHours: LRF_parseHours,
+    LRF_parseDate: LRF_parseDate,
+    LRF_checkFile: LRF_checkFile,
+    LRF_checkFileSize: LRF_checkFileSize,
+    LRF_checkFileCount: LRF_checkFileCount,
+    LRF_checkTotalSize: LRF_checkTotalSize,
+    LRF_RENEWAL_LIMITS: LRF_RENEWAL_LIMITS,
+    LRF_validEmail: LRF_validEmail,
+    validateRenewal: validateRenewal,
+    validateSubmission: validateSubmission,
+    parseMoney: parseMoney
+  };
+}
+</script>
+<script>
+(function () {
+  'use strict';
+  var API_URL = 'https://script.google.com/macros/s/AKfycbxfrdSKALuwZJayL_VPfhD5zF1tmkIrS91k7_keN91IvoKKdMWeR1xnjR5k0LKjKkvysQ/exec';
+  var TOKEN = '';
+  try { TOKEN = new URLSearchParams(window.location.search).get('t') || ''; } catch (e) { TOKEN = ''; }
+  var LRF_RENEWAL_LIMITS = { maxFiles: 2, maxPeriodRows: 12 };
+  var MAX_ROWS = LRF_RENEWAL_LIMITS.maxPeriodRows, MAX_FILES = LRF_RENEWAL_LIMITS.maxFiles, MAX_BYTES = 8 * 1024 * 1024;
+  var TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/heic', 'application/pdf'];
+  var EXT = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', heic: 'image/heic', pdf: 'application/pdf' };
+  var KEY = 'renewal';
+  var files = { renewal: [] };
+  var pending = 0, submitting = false, leaveRegistered = false, lastFocus = null, afterClose = null;
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, attrs, text) {
+    var e = document.createElement(tag);
+    for (var k in (attrs || {})) { if (Object.prototype.hasOwnProperty.call(attrs, k)) e.setAttribute(k, attrs[k]); }
+    if (text) e.textContent = text;
+    return e;
+  }
+
+  /* ---- leave warning ---- */
+  function onBeforeUnload(event) {
+    event.preventDefault();
+    event.returnValue = true;
+    return true;
+  }
+  function registerLeave() {
+    if (leaveRegistered) return;
+    leaveRegistered = true;
+    window.addEventListener('beforeunload', onBeforeUnload);
+  }
+  function removeLeave() {
+    leaveRegistered = false;
+    window.removeEventListener('beforeunload', onBeforeUnload);
+  }
+  document.addEventListener('input', registerLeave, true);
+  document.addEventListener('change', registerLeave, true);
+
+  /* ---- plan period rows ---- */
+  var rowsEl = $('rows');
+  function addRow() {
+    if (rowsEl.children.length >= MAX_ROWS) return;
+    var n = rowsEl.children.length;
+    var row = el('div', { 'class': 'row', role: 'group', 'aria-label': 'Funding period ' + (n + 1) });
+    var specs = [['start', 'Start date', 'date', ''], ['end', 'End date', 'date', ''], ['amount', 'Amount ($)', 'text', 'amt']];
+    specs.forEach(function (s) {
+      var d = el('div', s[3] ? { 'class': s[3] } : {});
+      var id = 'pp-' + s[0] + '-' + n;
+      d.appendChild(el('label', { 'for': id }, s[1] + (n === 0 ? ' *' : '')));
+      var inp = el('input', { type: s[2], id: id, 'data-f': s[0], autocomplete: 'off' });
+      if (s[0] === 'amount') inp.setAttribute('inputmode', 'decimal');
+      d.appendChild(inp);
+      row.appendChild(d);
+    });
+    var rm = el('div', { 'class': 'rm' });
+    var b = el('button', { type: 'button', 'aria-label': 'Remove funding period ' + (n + 1) }, 'Remove');
+    b.addEventListener('click', function () {
+      if (rowsEl.children.length <= 1) {
+        Array.prototype.forEach.call(row.querySelectorAll('input'), function (i) { i.value = ''; });
+        return;
+      }
+      rowsEl.removeChild(row);
+      renumber();
+    });
+    rm.appendChild(b);
+    row.appendChild(rm);
+    rowsEl.appendChild(row);
+    $('addRow').disabled = rowsEl.children.length >= MAX_ROWS;
+  }
+  function renumber() {
+    Array.prototype.forEach.call(rowsEl.children, function (row, n) {
+      row.setAttribute('aria-label', 'Funding period ' + (n + 1));
+      Array.prototype.forEach.call(row.querySelectorAll('input'), function (i) {
+        var f = i.getAttribute('data-f');
+        i.id = 'pp-' + f + '-' + n;
+        i.previousSibling.setAttribute('for', i.id);
+      });
+      row.querySelector('button').setAttribute('aria-label', 'Remove funding period ' + (n + 1));
+    });
+    $('addRow').disabled = rowsEl.children.length >= MAX_ROWS;
+  }
+  $('addRow').addEventListener('click', function () {
+    addRow();
+    registerLeave();
+    var last = rowsEl.lastChild;
+    if (last) last.querySelector('input').focus();
+  });
+
+  /* ---- uploads ---- */
+  function setupUpload(box) {
+    var key = box.getAttribute('data-key');
+    var id = 'file-' + key;
+    var inp = el('input', { type: 'file', id: id, multiple: 'multiple', 'aria-required': 'true', 'aria-describedby': 'file-hint', accept: '.png,.jpg,.jpeg,.webp,.heic,.pdf,image/png,image/jpeg,image/webp,image/heic,application/pdf' });
+    box.appendChild(inp);
+    box.appendChild(el('p', { 'class': 'ferr', id: 'ferr-' + key, role: 'alert' }));
+    box.appendChild(el('ul', { 'class': 'files', id: 'flist-' + key }));
+    inp.addEventListener('change', function () {
+      var errs = [];
+      var chosen = Array.prototype.slice.call(inp.files || []);
+      chosen.forEach(function (f) {
+        var type = f.type;
+        var ext = (f.name.split('.').pop() || '').toLowerCase();
+        if (TYPES.indexOf(type) < 0) type = EXT[ext] || '';
+        if (!type || TYPES.indexOf(type) < 0) { errs.push(f.name + ' is not an accepted file type.'); return; }
+        if (f.size > MAX_BYTES) { errs.push(f.name + ' is larger than 8 MB.'); return; }
+        if (files[key].length + 0 >= MAX_FILES) { errs.push(LRF_MESSAGES.filesRenewal || 'Please upload no more than 2 files.'); return; }
+        var entry = { name: f.name, mimeType: type, base64: null, size: f.size };
+        files[key].push(entry);
+        pending++;
+        var r = new FileReader();
+        r.onload = function () {
+          var s = String(r.result);
+          entry.base64 = s.slice(s.indexOf(',') + 1);
+          pending--;
+        };
+        r.onerror = function () {
+          pending--;
+          var i = files[key].indexOf(entry);
+          if (i >= 0) files[key].splice(i, 1);
+          renderFiles(key);
+          $('ferr-' + key).textContent = f.name + ' could not be read. Please try again.';
+        };
+        r.readAsDataURL(f);
+      });
+      inp.value = '';
+      $('ferr-' + key).textContent = errs.filter(function (x, i) { return errs.indexOf(x) === i; }).join(' ');
+      renderFiles(key);
+    });
+  }
+  function renderFiles(key) {
+    var ul = $('flist-' + key);
+    ul.textContent = '';
+    files[key].forEach(function (f) {
+      var li = el('li');
+      li.appendChild(el('span', {}, f.name));
+      var b = el('button', { type: 'button', 'aria-label': 'Remove file ' + f.name }, 'Remove');
+      b.addEventListener('click', function () {
+        files[key].splice(files[key].indexOf(f), 1);
+        renderFiles(key);
+        $('file-' + key).focus();
+      });
+      li.appendChild(b);
+      ul.appendChild(li);
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.upload'), function (b) { b.setAttribute('data-key', KEY); setupUpload(b); });
+  addRow();
+
+  /* ---- page load: check the token ---- */
+  var MSG_NO_LINK = 'Please use the personal link in the email we sent you to open this form.';
+  function showMessage(text) {
+    $('loading').hidden = true;
+    $('formArea').hidden = true;
+    $('message').textContent = text;
+    $('message').hidden = false;
+  }
+  function showForm() {
+    $('loading').hidden = true;
+    $('formArea').hidden = false;
+  }
+  if (!TOKEN) {
+    showMessage(MSG_NO_LINK);
+  } else {
+    var loadFailed = function () {
+      showMessage('We couldn\'t load the form. Please check your connection and refresh the page.');
+    };
+    try {
+      fetch(API_URL + '?api=status&t=' + encodeURIComponent(TOKEN), { credentials: 'omit' })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          var st = res && res.status;
+          if (!res || res.type !== 'renewal') showMessage(MSG_NO_LINK);
+          else if (st === 'open') showForm();
+          else if (st === 'submitted') showMessage('Thank you. We have already received this form.');
+          else showMessage(MSG_NO_LINK);
+        })
+        .catch(loadFailed);
+    } catch (err) { loadFailed(); }
+  }
+
+  /* ---- modal ---- */
+  function showModal(message, cb) {
+    lastFocus = document.activeElement;
+    afterClose = cb || null;
+    $('modalMsg').textContent = message;
+    $('overlay').hidden = false;
+    $('modalOk').focus();
+  }
+  function closeModal() {
+    if ($('overlay').hidden) return;
+    $('overlay').hidden = true;
+    var cb = afterClose;
+    afterClose = null;
+    if (cb) cb(); else if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  $('modalOk').addEventListener('click', closeModal);
+  $('overlay').addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); closeModal(); }
+    else if (e.key === 'Tab') { e.preventDefault(); $('modalOk').focus(); }
+  });
+
+  /* ---- payload and failure focus ---- */
+  function val(id) { return $(id).value; }
+  function collect() {
+    var periods = [];
+    Array.prototype.forEach.call(rowsEl.children, function (row) {
+      var o = {};
+      Array.prototype.forEach.call(row.querySelectorAll('input'), function (i) { o[i.getAttribute('data-f')] = i.value; });
+      periods.push({ start: o.start || '', end: o.end || '', amount: o.amount || '' });
+    });
+    var fm = document.querySelector('input[name=fundManagement]:checked');
+    var none = $('noNominee').checked;
+    return {
+      token: TOKEN,
+      formType: 'renewal',
+      behaviourFunding: val('behaviourFunding'),
+      specialistHours: val('specialistHours'),
+      managementHours: val('managementHours'),
+      fundingPeriods: periods,
+      fundManagement: fm ? fm.value : '',
+      planManagerEmail: fm && fm.value === 'Plan-managed' ? val('planManagerEmail') : '',
+      nomineeName: none ? '' : val('nomineeName'),
+      noNominee: none,
+      signerName: val('signerName'),
+      signerRole: val('signerRole'),
+      signerEmail: val('signerEmail'),
+      files: { renewal: files[KEY].map(function (f) { return { name: f.name, mimeType: f.mimeType, base64: f.base64 }; }) }
+    };
+  }
+  /* fund management: show plan manager email only when Plan-managed */
+  function syncFM() {
+    var fm = document.querySelector('input[name=fundManagement]:checked');
+    $('pmBox').hidden = !(fm && fm.value === 'Plan-managed');
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('input[name=fundManagement]'), function (r) { r.addEventListener('change', syncFM); });
+  $('noNominee').addEventListener('change', function () {
+    var n = $('noNominee').checked;
+    $('nomineeName').disabled = n;
+    if (n) { $('nomineeName').value = ''; $('nomineeName').classList.remove('invalid'); $('nomineeName').removeAttribute('aria-invalid'); }
+  });
+  function clearInvalid() {
+    Array.prototype.forEach.call(document.querySelectorAll('.invalid'), function (n) {
+      n.classList.remove('invalid');
+      n.removeAttribute('aria-invalid');
+    });
+  }
+  function targetFor(result) {
+    if (result.field === 'fundingPeriods') {
+      var row = rowsEl.children[result.rowIndex || 0] || rowsEl.children[0];
+      var s = row.querySelector('[data-f=start]'), e = row.querySelector('[data-f=end]'), a = row.querySelector('[data-f=amount]');
+      if (result.popup === 'dates') return (!s.value) ? s : e;
+      if (!s.value) return s;
+      if (!e.value) return e;
+      return a;
+    }
+    if (result.field === 'fundManagement') return $('fm-ndia');
+    if (result.field === 'files' || result.field === 'renewal') return $('file-' + KEY);
+    return $(result.field);
+  }
+  function focusFailure(result) {
+    var t = targetFor(result);
+    if (!t) return;
+    t.classList.add('invalid');
+    t.setAttribute('aria-invalid', 'true');
+    t.focus();
+    if (t.scrollIntoView) t.scrollIntoView({ block: 'center' });
+  }
+
+  /* ---- submit ---- */
+  var GENERIC = 'Sorry, something went wrong and your form was not submitted. Your answers have been kept. Please check your connection and try again.';
+  function setBusy(b) {
+    submitting = b;
+    $('submitBtn').disabled = b;
+    $('status').textContent = b ? 'Submitting, please wait...' : '';
+  }
+  $('form').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    if (submitting) return;
+    clearInvalid();
+    if (pending > 0) {
+      showModal('Your files are still being prepared. Please try again in a moment.');
+      return;
+    }
+    var total = 0;
+    files[KEY].forEach(function (f) { total += f.size; });
+    var totalErr = LRF_checkTotalSize(total);
+    if (totalErr) { showModal(totalErr); return; }
+    var payload = collect();
+    var result = validateRenewal(payload);
+    if (!result.ok) {
+      showModal(result.message || LRF_MESSAGES[result.popup] || GENERIC, function () { focusFailure(result); });
+      return;
+    }
+    setBusy(true);
+    var done = false;
+    function fail(res) {
+      if (done) return;
+      done = true;
+      setBusy(false);
+      var msg = GENERIC;
+      if (res && res.popup === 'invalid') msg = 'This link is not valid. Please use the personal link from our email.';
+      else if (res && res.message) msg = res.message;
+      else if (res && res.popup && LRF_MESSAGES[res.popup]) msg = LRF_MESSAGES[res.popup];
+      showModal(msg, res && res.field ? function () { focusFailure(res); } : null);
+    }
+    var req;
+    try {
+      req = fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), credentials: 'omit', redirect: 'follow' })
+        .then(function (r) { return r.json(); });
+    } catch (err) {
+      fail(null);
+      return;
+    }
+    req.then(function (res) {
+      if (done) return;
+      if (res && res.ok) {
+        done = true;
+        removeLeave();
+        setBusy(false);
+        $('formArea').hidden = true;
+        $('thanks').hidden = false;
+        $('thanks').focus();
+        window.scrollTo(0, 0);
+      } else {
+        fail(res);
+      }
+    }, function () { fail(null); });
+  });
+})();
+</script>
+</body>
+</html>
