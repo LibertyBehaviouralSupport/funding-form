@@ -79,13 +79,13 @@
     <p class="legend"><span class="req">*</span> = compulsory</p>
 
     <form id="form" novalidate>
-      <fieldset class="section" id="sec-ndisNumber">
+      <fieldset class="section" id="q1" data-section="q1">
         <legend>1. <span class="req">*</span> Participant's NDIS number (not plan nominee's NDIS number)</legend>
         <label for="ndisNumber">NDIS number <span class="req">*</span></label>
         <input type="text" id="ndisNumber" name="ndisNumber" inputmode="numeric" autocomplete="off" aria-required="true">
       </fieldset>
 
-      <fieldset class="section" id="sec-planPeriods">
+      <fieldset class="section" id="q2" data-section="q2">
         <legend>2. <span class="req">*</span> Plan period dates and amounts</legend>
         <p class="hint">Enter the start date, end date and amount for each plan period.</p>
         <div id="rows"></div>
@@ -93,14 +93,14 @@
         <div class="upload" data-key="planPeriods"></div>
       </fieldset>
 
-      <fieldset class="section" id="sec-overallFunding">
+      <fieldset class="section" id="q3" data-section="q3">
         <legend>3. <span class="req">*</span> Overall funding amount</legend>
         <label for="overallFunding">Amount ($) <span class="req">*</span></label>
         <input type="text" id="overallFunding" name="overallFunding" inputmode="decimal" autocomplete="off" aria-required="true">
         <div class="upload" data-key="overallFunding"></div>
       </fieldset>
 
-      <fieldset class="section" id="sec-spentFunding">
+      <fieldset class="section" id="q4" data-section="q4">
         <legend>4. <span class="req">*</span> Any spent or used funding</legend>
         <label for="spentFunding">Amount spent or used ($) <span class="req">*</span></label>
         <input type="text" id="spentFunding" name="spentFunding" autocomplete="off" aria-required="true">
@@ -108,7 +108,7 @@
         <div class="upload" data-key="spentFunding"></div>
       </fieldset>
 
-      <fieldset class="section" id="sec-statedHours">
+      <fieldset class="section" id="q5" data-section="q5">
         <legend>5. <span class="req">*</span> Stated funding hours</legend>
         <label for="statedHours">Hours <span class="req">*</span></label>
         <input type="text" id="statedHours" name="statedHours" inputmode="decimal" autocomplete="off" aria-required="true">
@@ -423,6 +423,7 @@ if (typeof module !== 'undefined' && module.exports) {
   var files = { planPeriods: [], overallFunding: [], spentFunding: [], statedHours: [] };
   var pending = 0, submitting = false, leaveRegistered = false, lastFocus = null, afterClose = null;
 
+  function A(m, a) { try { if (window.LRF_ANALYTICS) window.LRF_ANALYTICS[m](a); } catch (e) {} }
   function $(id) { return document.getElementById(id); }
   function el(tag, attrs, text) {
     var e = document.createElement(tag);
@@ -572,6 +573,7 @@ if (typeof module !== 'undefined' && module.exports) {
   function showForm() {
     $('loading').hidden = true;
     $('formArea').hidden = false;
+    try { if (window.LRF_ANALYTICS) window.LRF_ANALYTICS.start('referral', API_URL); } catch (e) {}
   }
   if (!TOKEN) {
     showMessage(MSG_NO_LINK);
@@ -669,6 +671,7 @@ if (typeof module !== 'undefined' && module.exports) {
     $('submitBtn').disabled = b;
     $('status').textContent = b ? 'Submitting, please wait...' : '';
   }
+  $('submitBtn').addEventListener('click', function () { A('event', 'submit_attempt'); });
   $('form').addEventListener('submit', function (ev) {
     ev.preventDefault();
     if (submitting) return;
@@ -684,6 +687,7 @@ if (typeof module !== 'undefined' && module.exports) {
     var payload = collect();
     var result = validateSubmission(payload);
     if (!result.ok) {
+      try { if (window.LRF_ANALYTICS) window.LRF_ANALYTICS.event('popup', { popup: result.popup, field: result.field }); } catch (e) {}
       showModal(result.message || LRF_MESSAGES[result.popup] || GENERIC, function () { focusFailure(result); });
       return;
     }
@@ -697,6 +701,7 @@ if (typeof module !== 'undefined' && module.exports) {
       if (res && res.popup === 'invalid') msg = 'This link is not valid. Please use the personal link from our email.';
       else if (res && res.message) msg = res.message;
       else if (res && res.popup && LRF_MESSAGES[res.popup]) msg = LRF_MESSAGES[res.popup];
+      try { if (window.LRF_ANALYTICS && res && res.popup) window.LRF_ANALYTICS.event('popup', { popup: res.popup, field: res.field }); } catch (e) {}
       showModal(msg, res && res.field ? function () { focusFailure(res); } : null);
     }
     var req;
@@ -715,6 +720,7 @@ if (typeof module !== 'undefined' && module.exports) {
         setBusy(false);
         $('formArea').hidden = true;
         $('thanks').hidden = false;
+        try { if (window.LRF_ANALYTICS) { window.LRF_ANALYTICS.event('submit_success'); window.LRF_ANALYTICS.flush(); } } catch (e) {}
         $('thanks').focus();
         window.scrollTo(0, 0);
       } else {
@@ -722,6 +728,191 @@ if (typeof module !== 'undefined' && module.exports) {
       }
     }, function () { fail(null); });
   });
+})();
+</script>
+<script>/* Liberty form analytics: element keys, coordinates and timings only. Never records typed or chosen values. */
+(function () {
+  'use strict';
+  var MAX_EVENTS = 300, RESERVE = 10, FLUSH_MS = 15000;
+  var INTERACTIVE = 'a,button,input,select,textarea,label,summary,[role=button],[tabindex]';
+  var started = false, formType = '', apiUrl = '', session = '', device = '', t0 = 0;
+  var queue = [], total = 0, container = null;
+  var maxDepth = 0, sentDepth = 0, curSection = '', sectionAt = 0, lastSection = 'none';
+  var clicks = [], submitted = false, timer = null, left = false;
+
+  function now() { return Date.now(); }
+  function T() { return Math.max(0, Math.round(now() - t0)); }
+  function clamp(n, lo, hi) { n = Number(n); if (!isFinite(n)) return lo; return Math.min(hi, Math.max(lo, n)); }
+  function r3(n) { return Math.round(clamp(n, 0, 1) * 1000) / 1000; }
+  function safeKey(s) { return (typeof s === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(s)) ? s : null; }
+
+  function makeSession() {
+    var a = new Uint8Array(8), s = '';
+    crypto.getRandomValues(a);
+    for (var i = 0; i < a.length; i++) s += ('0' + a[i].toString(16)).slice(-2);
+    return s;
+  }
+
+  function push(ev, final) {
+    var limit = final ? MAX_EVENTS : MAX_EVENTS - RESERVE;
+    if (total >= limit) return;
+    total++;
+    queue.push(ev);
+  }
+  function add(type, props, final) {
+    var ev = { type: type, t: T() };
+    for (var k in props) { if (Object.prototype.hasOwnProperty.call(props, k)) ev[k] = props[k]; }
+    push(ev, final);
+  }
+
+  function send(body) {
+    var ok = false;
+    try {
+      if (navigator.sendBeacon) ok = navigator.sendBeacon(apiUrl, new Blob([body], { type: 'text/plain' }));
+    } catch (e) { ok = false; }
+    if (!ok) {
+      try { fetch(apiUrl, { method: 'POST', body: body, credentials: 'omit', keepalive: true }); } catch (e2) {}
+    }
+  }
+  function flush() {
+    try {
+      if (!started || !queue.length) return;
+      var events = queue;
+      queue = [];
+      send(JSON.stringify({ kind: 'analytics', formType: formType, session: session, device: device, events: events }));
+    } catch (e) {}
+  }
+
+  function sectionOf(node) {
+    var fs = node && node.closest ? node.closest('fieldset') : null;
+    var s = fs ? fs.getAttribute('data-section') : null;
+    return safeKey(s) || 'none';
+  }
+  function keyEl(node) {
+    var e = node && node.closest ? node.closest('[id]') : null;
+    return e && safeKey(e.id) ? e : null;
+  }
+
+  function closeSection() {
+    if (curSection) add('section_time', { section: curSection, ms: Math.max(0, Math.round(now() - sectionAt)) });
+  }
+  function enterSection(sec) {
+    if (!sec || sec === 'none' || sec === curSection) return;
+    closeSection();
+    curSection = sec;
+    lastSection = sec;
+    sectionAt = now();
+    add('focus_section', { section: sec });
+  }
+
+  function checkScroll() {
+    if (!container) return;
+    var r = container.getBoundingClientRect();
+    var h = r.height;
+    if (!(h > 0)) return;
+    var depth = clamp((window.innerHeight - r.top) / h, 0, 1);
+    if (depth > maxDepth) maxDepth = depth;
+    if (maxDepth - sentDepth >= 0.05) {
+      sentDepth = maxDepth;
+      add('scroll', { depth: r3(maxDepth) });
+    }
+  }
+
+  function onClick(ev) {
+    try {
+      if (!started) return;
+      var tgt = ev.target;
+      if (!tgt || !tgt.closest) tgt = tgt && tgt.parentElement;
+      if (!tgt) return;
+      var kel = keyEl(tgt);
+      var key = kel ? kel.id : 'page';
+      var section = sectionOf(tgt);
+      var cx = ev.clientX, cy = ev.clientY, rx, ry;
+      if (kel) {
+        var kr = kel.getBoundingClientRect();
+        rx = kr.width > 0 ? (cx - kr.left) / kr.width : 0;
+        ry = kr.height > 0 ? (cy - kr.top) / kr.height : 0;
+      } else {
+        var de = document.documentElement;
+        rx = de.scrollWidth > 0 ? (cx + window.pageXOffset) / de.scrollWidth : 0;
+        ry = de.scrollHeight > 0 ? (cy + window.pageYOffset) / de.scrollHeight : 0;
+      }
+      var cr = container.getBoundingClientRect();
+      var px = cr.width > 0 ? (cx - cr.left) / cr.width : 0;
+      var py = clamp(cy - cr.top, 0, 20000);
+      var n = now();
+      clicks = clicks.filter(function (c) { return n - c.n <= 1000; });
+      var near = clicks.filter(function (c) { return Math.abs(c.x - cx) <= 30 && Math.abs(c.y - cy) <= 30; });
+      var rage = near.length >= 2;
+      clicks.push({ n: n, x: cx, y: cy });
+      add('click', {
+        key: key, section: section, rx: r3(rx), ry: r3(ry), px: r3(px), py: Math.round(py),
+        dead: !tgt.closest(INTERACTIVE), rage: rage
+      });
+      enterSection(section);
+    } catch (e) {}
+  }
+  function onFocusIn(ev) {
+    try { if (started) enterSection(sectionOf(ev.target)); } catch (e) {}
+  }
+  function onPageHide() {
+    try {
+      if (!started || left) return;
+      left = true;
+      closeSection();
+      curSection = '';
+      add('leave', { last_section: lastSection, max_scroll: r3(maxDepth), submitted: submitted }, true);
+      flush();
+    } catch (e) {}
+  }
+  function onVisibility() {
+    try { if (document.visibilityState === 'hidden') flush(); } catch (e) {}
+  }
+
+  function start(type, url) {
+    try {
+      if (started) return;
+      if (type !== 'referral' && type !== 'renewal') return;
+      if (typeof url !== 'string' || !url) return;
+      started = true;
+      formType = type;
+      apiUrl = url;
+      session = makeSession();
+      t0 = now();
+      container = document.getElementById('formArea') || document.body;
+      var w = window.innerWidth || 0;
+      device = w < 600 ? 'phone' : (w < 1024 ? 'tablet' : 'computer');
+      add('view', { device: device, vw: Math.round(w), vh: Math.round(window.innerHeight || 0) });
+      document.addEventListener('click', onClick, true);
+      document.addEventListener('focusin', onFocusIn, true);
+      window.addEventListener('scroll', function () { try { checkScroll(); } catch (e) {} }, { passive: true });
+      window.addEventListener('pagehide', onPageHide);
+      document.addEventListener('visibilitychange', onVisibility);
+      timer = setInterval(flush, FLUSH_MS);
+      checkScroll();
+    } catch (e) {}
+  }
+
+  function event(type, data) {
+    try {
+      if (!started) return;
+      if (type === 'popup') {
+        var p = safeKey(data && data.popup);
+        if (!p) return;
+        var props = { popup: p };
+        var f = safeKey(data && data.field);
+        if (f) props.field = f;
+        add('popup', props);
+      } else if (type === 'submit_attempt') {
+        add('submit_attempt', {});
+      } else if (type === 'submit_success') {
+        submitted = true;
+        add('submit_success', {}, true);
+      }
+    } catch (e) {}
+  }
+
+  window.LRF_ANALYTICS = { start: start, event: event, flush: flush };
 })();
 </script>
 </body>
