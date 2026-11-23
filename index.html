@@ -146,6 +146,9 @@ var LRF_MESSAGES = {
   leave: 'Are you sure you want to close this page? You will lose all of the information you put in here.',
   ndis: "Please enter the participant's 9-digit NDIS number.",
   dates: 'Please check the plan period dates. The end date must be after the start date.',
+  email: 'Please enter a valid email address.',
+  filesRequired: 'Please upload at least one screenshot from the NDIA portal or a copy of the new NDIS plan.',
+  filesRenewal: 'Please upload no more than 2 files.',
   filesTotal: 'Your uploaded files are too large to send together. Please remove some files or upload smaller screenshots. The limit is 25 MB in total.'
 };
 
@@ -156,6 +159,8 @@ var LRF_FILE_LIMITS = {
   mimeTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/heic', 'application/pdf'],
   maxPlanRows: 6
 };
+
+var LRF_RENEWAL_LIMITS = { maxFiles: 2, maxPeriodRows: 12 };
 
 var LRF_VAGUE_PHRASES = [
   'tba', 'tbc', 'tbd', 'to be advised', 'to be confirmed', 'to be determined',
@@ -256,6 +261,7 @@ function validateSubmission(payload) {
 
   // 2. Plan periods.
   var rows = Array.isArray(payload.planPeriods) ? payload.planPeriods : [];
+  if (rows.length > LRF_FILE_LIMITS.maxPlanRows) return LRF_fail('vague', 'planPeriods', LRF_FILE_LIMITS.maxPlanRows);
   var completeRows = 0;
   for (var i = 0; i < rows.length; i++) {
     var row = rows[i] || {};
@@ -294,6 +300,74 @@ function validateSubmission(payload) {
   return { ok: true };
 }
 
+function LRF_validEmail(text) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(LRF_str(text).trim());
+}
+
+// Renewal funding form. Same result shape as validateSubmission.
+function validateRenewal(payload) {
+  payload = payload || {};
+  var files = payload.files || {};
+  var n;
+
+  // 1. Behaviour support funding.
+  n = parseMoney(payload.behaviourFunding);
+  if (n === null) return LRF_fail('vague', 'behaviourFunding');
+  if (n === 0) return LRF_fail('zero', 'behaviourFunding');
+
+  // 2. Hours.
+  var sh = LRF_isBlank(payload.specialistHours) ? null : LRF_parseHours(payload.specialistHours);
+  if (sh === null) return LRF_fail('vague', 'specialistHours');
+  var mh = LRF_isBlank(payload.managementHours) ? null : LRF_parseHours(payload.managementHours);
+  if (mh === null) return LRF_fail('vague', 'managementHours');
+  if (sh === 0 && mh === 0) return LRF_fail('vague', 'specialistHours');
+
+  // 3. Funding periods.
+  var rows = Array.isArray(payload.fundingPeriods) ? payload.fundingPeriods : [];
+  if (rows.length > LRF_RENEWAL_LIMITS.maxPeriodRows) return LRF_fail('vague', 'fundingPeriods', LRF_RENEWAL_LIMITS.maxPeriodRows);
+  var complete = 0;
+  for (var i = 0; i < rows.length; i++) {
+    var row = rows[i] || {};
+    if (LRF_isBlank(row.start) && LRF_isBlank(row.end) && LRF_isBlank(row.amount)) continue;
+    var s = LRF_parseDate(row.start), e = LRF_parseDate(row.end);
+    if (s === null || e === null || e <= s) return LRF_fail('dates', 'fundingPeriods', i);
+    var a = parseMoney(row.amount);
+    if (a === null) return LRF_fail('vague', 'fundingPeriods', i);
+    if (a === 0) return LRF_fail('zero', 'fundingPeriods', i);
+    complete++;
+  }
+  if (complete === 0) return LRF_fail('vague', 'fundingPeriods', 0);
+
+  // 4. Fund management.
+  var fm = payload.fundManagement;
+  if (fm !== 'NDIA-managed' && fm !== 'Plan-managed' && fm !== 'Self-managed') return LRF_fail('vague', 'fundManagement');
+  if (fm === 'Plan-managed') {
+    if (LRF_isVague(payload.planManagerEmail)) return LRF_fail('vague', 'planManagerEmail');
+    if (!LRF_validEmail(payload.planManagerEmail)) return LRF_fail('email', 'planManagerEmail');
+  }
+
+  // 5. Plan nominee and signer.
+  if (payload.noNominee !== true && LRF_isVague(payload.nomineeName)) return LRF_fail('vague', 'nomineeName');
+  if (LRF_isVague(payload.signerName)) return LRF_fail('vague', 'signerName');
+  if (LRF_isVague(payload.signerRole)) return LRF_fail('vague', 'signerRole');
+  if (LRF_isVague(payload.signerEmail)) return LRF_fail('vague', 'signerEmail');
+  if (!LRF_validEmail(payload.signerEmail)) return LRF_fail('email', 'signerEmail');
+
+  // Files (compulsory, 1 to 2).
+  var list = files.renewal;
+  if (!Array.isArray(list) || list.length === 0) return LRF_fail('filesRequired', 'files');
+  {
+    if (list.length > LRF_RENEWAL_LIMITS.maxFiles) {
+      return { ok: false, popup: 'files', field: 'files', message: LRF_MESSAGES.filesRenewal };
+    }
+    for (var k = 0; k < list.length; k++) {
+      var problem = LRF_checkFile(list[k]);
+      if (problem) return { ok: false, popup: 'files', field: 'files', message: problem };
+    }
+  }
+  return { ok: true };
+}
+
 // File checks, shared by browser and server. Returns an error string or ''.
 function LRF_checkFile(file) {
   if (!file || typeof file !== 'object') return 'Invalid file.';
@@ -327,6 +401,9 @@ if (typeof module !== 'undefined' && module.exports) {
     LRF_checkFileSize: LRF_checkFileSize,
     LRF_checkFileCount: LRF_checkFileCount,
     LRF_checkTotalSize: LRF_checkTotalSize,
+    LRF_RENEWAL_LIMITS: LRF_RENEWAL_LIMITS,
+    LRF_validEmail: LRF_validEmail,
+    validateRenewal: validateRenewal,
     validateSubmission: validateSubmission,
     parseMoney: parseMoney
   };
@@ -507,6 +584,7 @@ if (typeof module !== 'undefined' && module.exports) {
         .then(function (r) { return r.json(); })
         .then(function (res) {
           var st = res && res.status;
+          if (res && res.type === 'renewal') st = 'invalid';
           if (st === 'open') showForm();
           else if (st === 'submitted') showMessage('Thank you. We have already received this form.');
           else showMessage(MSG_NO_LINK);
