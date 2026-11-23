@@ -45,6 +45,8 @@
   button:disabled { opacity: .6; cursor: not-allowed; }
   .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
   #status { color: #555; }
+  .savednote { color: #666; font-size: .875rem; margin: 10px 0 0; }
+  .notice button { margin-left: 8px; padding: 2px 10px; font-size: .875rem; }
   #thanks, #loading, #message { background: #fff; border: 1px solid #DADDE3; border-radius: 6px; padding: 20px; }
   .overlay { position: fixed; inset: 0; background: rgba(10,30,61,.6); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
   .overlay[hidden], [hidden] { display: none !important; }
@@ -75,7 +77,7 @@
   <p id="message" hidden tabindex="-1"></p>
 
   <div id="formArea" hidden>
-    <p class="notice" id="leaveNotice">If you close this page before submitting, you will lose all of the information you put in here.</p>
+    <p class="notice" id="restoreNotice" role="status" hidden>We've filled in the answers you entered earlier on this device. <button type="button" id="restoreDismiss">Dismiss</button></p>
     <p class="legend"><span class="req">*</span> = compulsory</p>
 
     <form id="form" novalidate>
@@ -119,6 +121,7 @@
         <button type="submit" class="primary" id="submitBtn">Submit</button>
         <span id="status" role="status" aria-live="polite"></span>
       </div>
+      <p class="savednote" id="saveNote">Your answers are saved on this device as you go, so you can come back later using the same link.</p>
     </form>
   </div>
 
@@ -143,7 +146,6 @@
 var LRF_MESSAGES = {
   vague: 'Unfortunately the NDIS will not allow us to begin/continue services without all of the information requested here. Could you please obtain the necessary information before submitting this form?',
   zero: 'Unfortunately we cannot begin services with a $0 plan. If you do not have the accurate amount yet, please fill out this form when you do have the accurate figure. You can find the accurate figure in the NDIA portal',
-  leave: 'Are you sure you want to close this page? You will lose all of the information you put in here.',
   ndis: "Please enter the participant's 9-digit NDIS number.",
   dates: 'Please check the plan period dates. The end date must be after the start date.',
   email: 'Please enter a valid email address.',
@@ -349,7 +351,6 @@ function validateRenewal(payload) {
   // 5. Plan nominee and signer.
   if (payload.noNominee !== true && LRF_isVague(payload.nomineeName)) return LRF_fail('vague', 'nomineeName');
   if (LRF_isVague(payload.signerName)) return LRF_fail('vague', 'signerName');
-  if (LRF_isVague(payload.signerRole)) return LRF_fail('vague', 'signerRole');
   if (LRF_isVague(payload.signerEmail)) return LRF_fail('vague', 'signerEmail');
   if (!LRF_validEmail(payload.signerEmail)) return LRF_fail('email', 'signerEmail');
 
@@ -409,6 +410,121 @@ if (typeof module !== 'undefined' && module.exports) {
   };
 }
 </script>
+<script>/* Local draft saving (IndexedDB only). Nothing here is ever sent anywhere, and nothing here touches analytics.
+   Every function fails silently: if IndexedDB is missing, blocked or errors, the form carries on normally. */
+var LRF_DRAFTS = (function () {
+  'use strict';
+  var DB = 'lrf-drafts', STORE = 'drafts', MAX_AGE = 30 * 24 * 60 * 60 * 1000;
+  var dbp = null, chain = Promise.resolve();
+
+  function open() {
+    if (dbp) return dbp;
+    dbp = new Promise(function (resolve) {
+      try {
+        var idb = window.indexedDB;
+        if (!idb) { resolve(null); return; }
+        var rq = idb.open(DB, 1);
+        rq.onupgradeneeded = function () {
+          try { rq.result.createObjectStore(STORE, { keyPath: 'token' }); } catch (e) {}
+        };
+        rq.onsuccess = function () { resolve(rq.result); };
+        rq.onerror = function () { resolve(null); };
+        rq.onblocked = function () { resolve(null); };
+      } catch (e) { resolve(null); }
+    });
+    return dbp;
+  }
+  /* Runs fn(store) in a transaction, one operation at a time, and always resolves (null on any problem). */
+  function run(mode, fn) {
+    var p = chain.then(function () {
+      return open().then(function (db) {
+        if (!db) return null;
+        return new Promise(function (resolve) {
+          try {
+            var tx = db.transaction(STORE, mode);
+            var out = null;
+            tx.oncomplete = function () { resolve(out); };
+            tx.onerror = tx.onabort = function () { resolve(null); };
+            fn(tx.objectStore(STORE), function (v) { out = v; });
+          } catch (e) { resolve(null); }
+        });
+      });
+    }).catch(function () { return null; });
+    chain = p;
+    return p;
+  }
+
+  function load(token) {
+    return run('readonly', function (store, set) {
+      var rq = store.get(token);
+      rq.onsuccess = function () { set(rq.result || null); };
+    });
+  }
+  function save(rec) { return run('readwrite', function (store) { store.put(rec); }); }
+  function remove(token) { return run('readwrite', function (store) { store.delete(token); }); }
+  /* Deletes every record older than 30 days. */
+  function cleanup() {
+    return run('readwrite', function (store) {
+      var rq = store.openCursor();
+      rq.onsuccess = function () {
+        var c = rq.result;
+        if (!c) return;
+        var v = c.value;
+        if (!v || typeof v.savedAt !== 'number' || Date.now() - v.savedAt >= MAX_AGE) c.delete();
+        c.continue();
+      };
+    });
+  }
+  function isFresh(rec) {
+    return !!rec && typeof rec.savedAt === 'number' && Date.now() - rec.savedAt < MAX_AGE && Date.now() - rec.savedAt > -86400000;
+  }
+
+  /* Reads the typed values and choices of a form (not file inputs, not the repeating rows). */
+  function collect(form, rowsEl, files, KEYS) {
+    var fields = {}, checks = {}, rows = [], f = {};
+    Array.prototype.forEach.call(form.querySelectorAll('input, textarea, select'), function (n) {
+      if (!n.id || n.type === 'file' || (rowsEl && rowsEl.contains(n))) return;
+      if (n.type === 'radio' || n.type === 'checkbox') checks[n.id] = !!n.checked;
+      else fields[n.id] = String(n.value);
+    });
+    if (rowsEl) {
+      Array.prototype.forEach.call(rowsEl.children, function (row) {
+        var o = {};
+        Array.prototype.forEach.call(row.querySelectorAll('input'), function (i) { o[i.getAttribute('data-f')] = i.value; });
+        rows.push({ start: o.start || '', end: o.end || '', amount: o.amount || '' });
+      });
+    }
+    KEYS.forEach(function (k) {
+      f[k] = (files[k] || []).filter(function (e) { return e && e.blob; })
+        .map(function (e) { return { name: e.name, type: e.mimeType, blob: e.blob }; });
+    });
+    return { fields: fields, checks: checks, rows: rows, files: f };
+  }
+  /* Puts a saved record back. hooks.setRows(rows) rebuilds the rows; hooks.addFiles(key, File[]) re-attaches files. */
+  function apply(form, rec, hooks, KEYS) {
+    if (hooks.setRows && rec.rows && rec.rows.length) hooks.setRows(rec.rows);
+    var fields = rec.fields || {}, checks = rec.checks || {};
+    Object.keys(fields).forEach(function (id) {
+      var n = document.getElementById(id);
+      if (n && form.contains(n) && n.type !== 'file' && n.type !== 'radio' && n.type !== 'checkbox') n.value = fields[id];
+    });
+    Object.keys(checks).forEach(function (id) {
+      var n = document.getElementById(id);
+      if (!n || !form.contains(n) || (n.type !== 'radio' && n.type !== 'checkbox')) return;
+      var was = n.checked;
+      n.checked = !!checks[id];
+      if (was !== n.checked) { try { n.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {} }
+    });
+    KEYS.forEach(function (k) {
+      var list = ((rec.files || {})[k] || []).map(function (e) {
+        try { return new File([e.blob], String(e.name || 'file'), { type: String(e.type || '') }); } catch (err) { return null; }
+      }).filter(Boolean);
+      if (list.length) hooks.addFiles(k, list);
+    });
+  }
+  return { open: open, load: load, save: save, remove: remove, cleanup: cleanup, isFresh: isFresh, collect: collect, apply: apply, MAX_AGE: MAX_AGE };
+})();
+</script>
 <script>
 (function () {
   'use strict';
@@ -421,7 +537,7 @@ if (typeof module !== 'undefined' && module.exports) {
   var KEYS = ['planPeriods', 'overallFunding', 'spentFunding', 'statedHours'];
   var UPLOAD_LABEL = 'Upload of screenshot from portal is preferred - this will allow us to process it faster';
   var files = { planPeriods: [], overallFunding: [], spentFunding: [], statedHours: [] };
-  var pending = 0, submitting = false, leaveRegistered = false, lastFocus = null, afterClose = null;
+  var pending = 0, submitting = false, lastFocus = null, afterClose = null;
 
   function A(m, a) { try { if (window.LRF_ANALYTICS) window.LRF_ANALYTICS[m](a); } catch (e) {} }
   function $(id) { return document.getElementById(id); }
@@ -431,24 +547,6 @@ if (typeof module !== 'undefined' && module.exports) {
     if (text) e.textContent = text;
     return e;
   }
-
-  /* ---- leave warning ---- */
-  function onBeforeUnload(event) {
-    event.preventDefault();
-    event.returnValue = true;
-    return true;
-  }
-  function registerLeave() {
-    if (leaveRegistered) return;
-    leaveRegistered = true;
-    window.addEventListener('beforeunload', onBeforeUnload);
-  }
-  function removeLeave() {
-    leaveRegistered = false;
-    window.removeEventListener('beforeunload', onBeforeUnload);
-  }
-  document.addEventListener('input', registerLeave, true);
-  document.addEventListener('change', registerLeave, true);
 
   /* ---- plan period rows ---- */
   var rowsEl = $('rows');
@@ -475,6 +573,7 @@ if (typeof module !== 'undefined' && module.exports) {
       }
       rowsEl.removeChild(row);
       renumber();
+      scheduleSave();
     });
     rm.appendChild(b);
     row.appendChild(rm);
@@ -495,7 +594,7 @@ if (typeof module !== 'undefined' && module.exports) {
   }
   $('addRow').addEventListener('click', function () {
     addRow();
-    registerLeave();
+    scheduleSave();
     var last = rowsEl.lastChild;
     if (last) last.querySelector('input').focus();
   });
@@ -511,8 +610,13 @@ if (typeof module !== 'undefined' && module.exports) {
     box.appendChild(el('p', { 'class': 'ferr', id: 'ferr-' + key, role: 'alert' }));
     box.appendChild(el('ul', { 'class': 'files', id: 'flist-' + key }));
     inp.addEventListener('change', function () {
-      var errs = [];
       var chosen = Array.prototype.slice.call(inp.files || []);
+      inp.value = '';
+      addFiles(key, chosen);
+    });
+  }
+  function addFiles(key, chosen) {
+      var errs = [];
       chosen.forEach(function (f) {
         var type = f.type;
         var ext = (f.name.split('.').pop() || '').toLowerCase();
@@ -520,7 +624,7 @@ if (typeof module !== 'undefined' && module.exports) {
         if (!type || TYPES.indexOf(type) < 0) { errs.push(f.name + ' is not an accepted file type.'); return; }
         if (f.size > MAX_BYTES) { errs.push(f.name + ' is larger than 8 MB.'); return; }
         if (files[key].length + 0 >= MAX_FILES) { errs.push('Only ' + MAX_FILES + ' files are allowed here. ' + f.name + ' was not added.'); return; }
-        var entry = { name: f.name, mimeType: type, base64: null, size: f.size };
+        var entry = { name: f.name, mimeType: type, base64: null, size: f.size, blob: f };
         files[key].push(entry);
         pending++;
         var r = new FileReader();
@@ -538,10 +642,9 @@ if (typeof module !== 'undefined' && module.exports) {
         };
         r.readAsDataURL(f);
       });
-      inp.value = '';
       $('ferr-' + key).textContent = errs.join(' ');
       renderFiles(key);
-    });
+      scheduleSave();
   }
   function renderFiles(key) {
     var ul = $('flist-' + key);
@@ -553,6 +656,7 @@ if (typeof module !== 'undefined' && module.exports) {
       b.addEventListener('click', function () {
         files[key].splice(files[key].indexOf(f), 1);
         renderFiles(key);
+        scheduleSave();
         $('file-' + key).focus();
       });
       li.appendChild(b);
@@ -561,6 +665,66 @@ if (typeof module !== 'undefined' && module.exports) {
   }
   Array.prototype.forEach.call(document.querySelectorAll('.upload'), setupUpload);
   addRow();
+
+  /* ---- save and restore progress (IndexedDB on this device only; never sent anywhere) ---- */
+  var D = window.LRF_DRAFTS, draftReady = false, draftDead = false, dirty = false, saveTimer = null;
+  function draftSave() {
+    saveTimer = null;
+    if (!D || !draftReady || draftDead || !dirty || !TOKEN) return;
+    try {
+      var rec = D.collect($('form'), rowsEl, files, KEYS);
+      rec.token = TOKEN;
+      rec.savedAt = Date.now();
+      dirty = false;
+      D.save(rec);
+    } catch (e) {}
+  }
+  function scheduleSave() {
+    dirty = true;
+    if (!draftReady || draftDead) return;
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(draftSave, 800);
+  }
+  function saveNow() {
+    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+    draftSave();
+  }
+  function dropDraft() {
+    draftDead = true;
+    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+    try { if (D && TOKEN) D.remove(TOKEN); } catch (e) {}
+  }
+  function applyRows(rows) {
+    rows = rows.slice(0, MAX_ROWS);
+    while (rowsEl.children.length > rows.length && rowsEl.children.length > 1) rowsEl.removeChild(rowsEl.lastChild);
+    while (rowsEl.children.length < rows.length) addRow();
+    Array.prototype.forEach.call(rowsEl.children, function (row, n) {
+      Array.prototype.forEach.call(row.querySelectorAll('input'), function (i) { i.value = String((rows[n] || {})[i.getAttribute('data-f')] || ''); });
+    });
+    renumber();
+  }
+  function startDrafts() {
+    try {
+      if (!D || !TOKEN) return;
+      D.cleanup();
+      D.load(TOKEN).then(function (rec) {
+        try {
+          if (rec && !D.isFresh(rec)) { D.remove(TOKEN); rec = null; }
+          if (rec && !dirty && !draftDead) {
+            D.apply($('form'), rec, { setRows: applyRows, addFiles: addFiles }, KEYS);
+            $('restoreNotice').hidden = false;
+            dirty = false;
+          }
+        } catch (e) {}
+        draftReady = true;
+      });
+    } catch (e) {}
+  }
+  document.addEventListener('input', scheduleSave, true);
+  document.addEventListener('change', scheduleSave, true);
+  window.addEventListener('pagehide', saveNow);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') saveNow(); });
+  $('restoreDismiss').addEventListener('click', function () { $('restoreNotice').hidden = true; });
 
   /* ---- page load: check the token ---- */
   var MSG_NO_LINK = 'Please use the personal link in the email we sent you to open this form.';
@@ -573,6 +737,7 @@ if (typeof module !== 'undefined' && module.exports) {
   function showForm() {
     $('loading').hidden = true;
     $('formArea').hidden = false;
+    startDrafts();
     try { if (window.LRF_ANALYTICS) window.LRF_ANALYTICS.start('referral', API_URL); } catch (e) {}
   }
   if (!TOKEN) {
@@ -588,8 +753,8 @@ if (typeof module !== 'undefined' && module.exports) {
           var st = res && res.status;
           if (res && res.type === 'renewal') st = 'invalid';
           if (st === 'open') showForm();
-          else if (st === 'submitted') showMessage('Thank you. We have already received this form.');
-          else showMessage(MSG_NO_LINK);
+          else if (st === 'submitted') { dropDraft(); showMessage('Thank you. We have already received this form.'); }
+          else { if (!(res && res.type === 'renewal')) dropDraft(); showMessage(MSG_NO_LINK); }
         })
         .catch(loadFailed);
     } catch (err) { loadFailed(); }
@@ -716,7 +881,7 @@ if (typeof module !== 'undefined' && module.exports) {
       if (done) return;
       if (res && res.ok) {
         done = true;
-        removeLeave();
+        dropDraft();
         setBusy(false);
         $('formArea').hidden = true;
         $('thanks').hidden = false;
