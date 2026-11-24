@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auto extended plan funding form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: #F5F5F5; color: #353535; font: 16px/1.5 Raleway, system-ui, sans-serif; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 16px; }
+  .site-header { background: #fff; border-bottom: 4px solid #F5B734; }
+  .site-header .bar { max-width: 720px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; min-height: 80px; }
+  .site-header img { height: 56px; width: auto; max-width: 100%; display: block; }
+  .logo-fallback { color: #0D326D; font-weight: 600; font-size: 20px; }
+  .topbar { height: 8px; background: #0A1E3D; }
+  h1 { font-size: 26px; font-weight: 600; color: #0D326D; margin: 4px 0 12px; overflow-wrap: anywhere; }
+  h2 { color: #0D326D; font-weight: 600; margin-top: 0; }
+  a { color: #0D326D; }
+  .notice { background: #FEF6E4; border: 1px solid #F0DFB4; border-left: 5px solid #F5B734; border-radius: 6px; color: #353535; padding: 10px 12px; margin: 0 0 12px; }
+  .legend { margin: 0 0 16px; color: #555; }
+  fieldset.section { background: #fff; border: 1px solid #DADDE3; border-top: 3px solid #0D326D; border-radius: 6px; margin: 0 0 16px; padding: 12px 14px 14px; min-width: 0; }
+  fieldset.section legend { font-weight: 600; color: #0D326D; padding: 0 4px; max-width: 100%; overflow-wrap: anywhere; }
+  .req { color: #B42318; }
+  label { display: block; font-weight: 600; margin: 8px 0 4px; }
+  .hint { font-size: 14px; color: #555; margin: 2px 0 6px; }
+  input[type=text], input[type=date], input[type=tel], input[type=email] { width: 100%; max-width: 100%; min-width: 0; font: inherit; color: #353535; padding: 9px 10px; border: 1px solid #6B7280; border-radius: 5px; background: #fff; }
+  input:focus, button:focus, input:focus-visible, button:focus-visible { outline: 3px solid #0D326D; outline-offset: 2px; }
+  .invalid { border-color: #B42318 !important; background: #fff1f0 !important; box-shadow: 0 0 0 2px #B42318; }
+  .row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px; align-items: end; margin: 0 0 8px; }
+  .row > div { min-width: 0; }
+  .row label { margin-top: 0; font-weight: 400; font-size: 14px; }
+  .upload { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #BFC5CE; }
+  .upload input[type=file] { max-width: 100%; font: inherit; }
+  .upload .ulabel { font-weight: 600; display: block; margin-bottom: 4px; }
+  .files { list-style: none; margin: 6px 0 0; padding: 0; }
+  .files li { display: flex; gap: 8px; align-items: center; justify-content: space-between; padding: 4px 0; overflow-wrap: anywhere; }
+  .ferr { color: #B42318; font-size: 14px; margin: 4px 0 0; }
+  button { font: inherit; font-weight: 600; cursor: pointer; border-radius: 5px; border: 1px solid #0D326D; background: #fff; color: #0D326D; padding: 9px 14px; }
+  button.primary { background: #F5B734; border-color: #F5B734; color: #0D326D; font-weight: 600; padding: 10px 18px; }
+  button.primary:hover:not(:disabled) { background: #E0A21F; border-color: #E0A21F; }
+  button:disabled { opacity: .6; cursor: not-allowed; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 8px; }
+  #status { color: #555; }
+  .savednote { color: #666; font-size: .875rem; margin: 10px 0 0; }
+  .notice button { margin-left: 8px; padding: 2px 10px; font-size: .875rem; }
+  #thanks, #loading, #message { background: #fff; border: 1px solid #DADDE3; border-radius: 6px; padding: 20px; }
+  .overlay { position: fixed; inset: 0; background: rgba(10,30,61,.6); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+  .overlay[hidden], [hidden] { display: none !important; }
+  .modal { background: #fff; border-radius: 8px; border-top: 6px solid #0D326D; max-width: 480px; width: 100%; padding: 20px; max-height: 90vh; overflow: auto; }
+  .modal p { margin: 0 0 16px; overflow-wrap: anywhere; }
+  .choice { display: flex; align-items: center; gap: 10px; font-weight: 400; margin: 6px 0; }
+  .choice input { width: 22px; height: 22px; margin: 0; flex: none; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .two > div { min-width: 0; }
+  .sub { margin-top: 12px; }
+  input:disabled { background: #EEF0F3; color: #6B7280; }
+  .site-footer { max-width: 720px; margin: 0 auto; padding: 8px 16px 24px; color: #555; font-size: 14px; text-align: center; }
+  @media (max-width: 560px) {
+    .row { grid-template-columns: 1fr 1fr; }
+    .row .amt { grid-column: 1 / -1; }
+    .row .rm { grid-column: 1 / -1; }
+    h1 { font-size: 22px; }
+    .two { grid-template-columns: 1fr; }
+    .site-header .bar { min-height: 68px; }
+    .site-header img { height: 44px; }
+  }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="bar">
+    <img src="https://libertybehaviouralservices.com/wp-content/uploads/2025/06/Liberty-1.png" width="235" height="85" alt="Liberty Behavioural Services" onerror="var f=document.createElement('span');f.className='logo-fallback';f.id='logoFallback';f.textContent='Liberty Behavioural Services';this.replaceWith(f);">
+  </div>
+</header>
+<div class="topbar"></div>
+<div class="wrap">
+  <h1>Auto extended plan funding form</h1>
+
+  <p id="loading" role="status">Loading...</p>
+  <p id="message" hidden tabindex="-1"></p>
+
+  <div id="formArea" hidden>
+    <p class="notice" id="restoreNotice" role="status" hidden>We've filled in the answers you entered earlier on this device. <button type="button" id="restoreDismiss">Dismiss</button></p>
+    <p>As a Provider, we cannot see any budgeting information in the PRODA Portal.</p>
+    <p>The NDIA have indexed participants' plans for the increase in the hourly rate for behaviour support.</p>
+    <p>Please advise the amount of funding that is available for the auto extended plan for this participant.</p>
+    <p class="legend"><span class="req">*</span> = compulsory</p>
+
+    <form id="form" novalidate>
+      <fieldset class="section" id="q1" data-section="q1">
+        <legend>1. <span class="req">*</span> Specialist Behaviour Support Funding</legend>
+        <label for="specialistFunding">Amount ($) <span class="req">*</span></label>
+        <input type="text" id="specialistFunding" name="specialistFunding" inputmode="decimal" autocomplete="off" aria-required="true">
+      </fieldset>
+
+      <fieldset class="section" id="q2" data-section="q2">
+        <legend>2. <span class="req">*</span> Behaviour Management Funding</legend>
+        <label for="managementFunding">Amount ($) <span class="req">*</span></label>
+        <input type="text" id="managementFunding" name="managementFunding" inputmode="decimal" autocomplete="off" aria-required="true">
+      </fieldset>
+
+      <p>Once we have this information, funding will be loaded in our system and services can continue.</p>
+      <p>A new SA will also be emailed out to be signed.</p>
+
+      <div class="actions">
+        <button type="submit" class="primary" id="submitBtn">Submit</button>
+        <span id="status" role="status" aria-live="polite"></span>
+      </div>
+      <p class="savednote" id="saveNote">Your answers are saved on this device as you go, so you can come back later using the same link.</p>
+    </form>
+  </div>
+
+  <div id="thanks" hidden tabindex="-1">
+    <h2>Thank you</h2>
+    <p>Thank you. We have received your auto extended plan funding form and will be in touch soon. You can now close this page.</p>
+  </div>
+</div>
+
+<footer class="site-footer">Liberty Behavioural Services &middot; Registered NDIS provider</footer>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="modalMsg" id="modal">
+    <p id="modalMsg"></p>
+    <button type="button" class="primary" id="modalOk">OK</button>
+  </div>
+</div>
+
+<script>/* Liberty Behavioural referral funding form: answer rules.
+ * Runs unchanged in a browser, Apps Script (V8) and Node. */
+
+var LRF_MESSAGES = {
+  vague: 'Unfortunately the NDIS will not allow us to begin/continue services without all of the information requested here. Could you please obtain the necessary information before submitting this form?',
+  zero: 'Unfortunately we cannot begin services with a $0 plan. If you do not have the accurate amount yet, please fill out this form when you do have the accurate figure. You can find the accurate figure in the NDIA portal',
+  ndis: "Please enter the participant's 9-digit NDIS number.",
+  dates: 'Please check the plan period dates. The end date must be after the start date.',
+  email: 'Please enter a valid email address.',
+  filesRequired: 'Please upload at least one screenshot from the NDIA portal or a copy of the new NDIS plan.',
+  filesRenewal: 'Please upload no more than 2 files.',
+  filesTotal: 'Your uploaded files are too large to send together. Please remove some files or upload smaller screenshots. The limit is 25 MB in total.'
+};
+
+var LRF_FILE_LIMITS = {
+  maxBytes: 8 * 1024 * 1024,
+  maxPerSection: 3,
+  maxTotalBytes: 25 * 1024 * 1024,
+  mimeTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/heic', 'application/pdf'],
+  maxPlanRows: 6
+};
+
+var LRF_RENEWAL_LIMITS = { maxFiles: 2, maxPeriodRows: 12 };
+
+var LRF_VAGUE_PHRASES = [
+  'tba', 'tbc', 'tbd', 'to be advised', 'to be confirmed', 'to be determined',
+  'n/a', 'na', 'unknown', 'not sure', 'unsure', "don't know", 'dont know', 'idk',
+  'pending', 'waiting', 'later', 'asap', 'see email', 'see attached', 'same as above',
+  '?', '-', '.', 'x', 'xx', 'xxx'
+];
+
+function LRF_str(v) {
+  if (v === null || v === undefined) return '';
+  return String(v);
+}
+
+// Lower-case, trimmed, with punctuation removed and whitespace collapsed.
+function LRF_normalise(text) {
+  return LRF_str(text).toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+var LRF_VAGUE_NORMALISED = (function () {
+  var out = {};
+  for (var i = 0; i < LRF_VAGUE_PHRASES.length; i++) {
+    var n = LRF_normalise(LRF_VAGUE_PHRASES[i]);
+    if (n) out[n] = true;
+  }
+  return out;
+})();
+
+function LRF_isBlank(text) {
+  return LRF_str(text).trim() === '';
+}
+
+function LRF_isVague(text) {
+  var raw = LRF_str(text).trim().toLowerCase();
+  if (raw === '') return true;
+  var norm = LRF_normalise(raw);
+  // Punctuation-only answers such as "?", "-", "." or "--".
+  if (norm === '') return true;
+  if (LRF_VAGUE_NORMALISED[norm]) return true;
+  if (/(^|[^a-z0-9])(tba|tbc|tbd)([^a-z0-9]|$)/.test(raw)) return true;
+  if (/(^|[^a-z0-9])to\s+be\s+(advised|confirmed|determined)([^a-z0-9]|$)/.test(raw)) return true;
+  return false;
+}
+
+function parseMoney(text) {
+  var s = LRF_str(text).trim();
+  s = s.replace(/^aud\b\s*/i, '').replace(/\s*\baud$/i, '');
+  s = s.replace(/\s*\bdollars$/i, '');
+  s = s.replace(/[$,\s]/g, '');
+  if (!/^\d+(\.\d{1,2})?$/.test(s)) return null;
+  return parseFloat(s);
+}
+
+function LRF_parseHours(text) {
+  var s = LRF_str(text).trim().toLowerCase().replace(/\s*(hours|hour|hrs|hr)$/, '');
+  s = s.replace(/,/g, '').trim();
+  if (!/^\d+(\.\d+)?$/.test(s)) return null;
+  return parseFloat(s);
+}
+
+function LRF_parseDate(text) {
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(LRF_str(text).trim());
+  if (!m) return null;
+  var y = +m[1], mo = +m[2], d = +m[3];
+  if (mo < 1 || mo > 12 || d < 1) return null;
+  var dim = [31, (y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (d > dim[mo - 1]) return null;
+  return y * 10000 + mo * 100 + d; // comparable integer
+}
+
+function LRF_fail(popup, field, rowIndex) {
+  var r = { ok: false, popup: popup, field: field, message: LRF_MESSAGES[popup] };
+  if (typeof rowIndex === 'number') r.rowIndex = rowIndex;
+  return r;
+}
+
+function LRF_hasFile(files, key) {
+  return !!(files && files[key] && files[key].length > 0);
+}
+
+function LRF_validateMoneyField(value, field) {
+  var n = parseMoney(value);
+  if (n === null) return LRF_fail('vague', field);
+  if (n === 0) return LRF_fail('zero', field);
+  return null;
+}
+
+function validateSubmission(payload) {
+  payload = payload || {};
+  var files = payload.files || {};
+
+  // 1. NDIS number: always typed.
+  var ndisRaw = LRF_str(payload.ndisNumber);
+  if (LRF_isVague(ndisRaw)) return LRF_fail('vague', 'ndisNumber');
+  if (!/^\d{9}$/.test(ndisRaw.replace(/\s/g, ''))) return LRF_fail('ndis', 'ndisNumber');
+
+  // 2. Plan periods.
+  var rows = Array.isArray(payload.planPeriods) ? payload.planPeriods : [];
+  if (rows.length > LRF_FILE_LIMITS.maxPlanRows) return LRF_fail('vague', 'planPeriods', LRF_FILE_LIMITS.maxPlanRows);
+  var completeRows = 0;
+  for (var i = 0; i < rows.length; i++) {
+    var row = rows[i] || {};
+    if (LRF_isBlank(row.start) && LRF_isBlank(row.end) && LRF_isBlank(row.amount)) continue;
+    var s = LRF_parseDate(row.start), e = LRF_parseDate(row.end);
+    if (s === null || e === null || e <= s) return LRF_fail('dates', 'planPeriods', i);
+    var n = parseMoney(row.amount);
+    if (n === null) return LRF_fail('vague', 'planPeriods', i);
+    if (n === 0) return LRF_fail('zero', 'planPeriods', i);
+    completeRows++;
+  }
+  if (completeRows === 0 && !LRF_hasFile(files, 'planPeriods')) {
+    return LRF_fail('vague', 'planPeriods', 0);
+  }
+
+  // 3. Overall funding.
+  if (!(LRF_isBlank(payload.overallFunding) && LRF_hasFile(files, 'overallFunding'))) {
+    var f = LRF_validateMoneyField(payload.overallFunding, 'overallFunding');
+    if (f) return f;
+  }
+
+  // 4. Spent funding: nil / none / $0 are real answers.
+  if (!(LRF_isBlank(payload.spentFunding) && LRF_hasFile(files, 'spentFunding'))) {
+    var sp = LRF_str(payload.spentFunding).trim().toLowerCase().replace(/[.!\s]+$/, '');
+    if (sp !== 'nil' && sp !== 'none' && parseMoney(payload.spentFunding) === null) {
+      return LRF_fail('vague', 'spentFunding');
+    }
+  }
+
+  // 5. Stated hours.
+  if (!(LRF_isBlank(payload.statedHours) && LRF_hasFile(files, 'statedHours'))) {
+    var h = LRF_parseHours(payload.statedHours);
+    if (h === null || h <= 0) return LRF_fail('vague', 'statedHours');
+  }
+
+  return { ok: true };
+}
+
+function LRF_validEmail(text) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(LRF_str(text).trim());
+}
+
+// Renewal funding form. Same result shape as validateSubmission.
+function validateRenewal(payload) {
+  payload = payload || {};
+  var files = payload.files || {};
+  var n;
+
+  // 1. Behaviour support funding.
+  n = parseMoney(payload.behaviourFunding);
+  if (n === null) return LRF_fail('vague', 'behaviourFunding');
+  if (n === 0) return LRF_fail('zero', 'behaviourFunding');
+
+  // 2. Hours.
+  var sh = LRF_isBlank(payload.specialistHours) ? null : LRF_parseHours(payload.specialistHours);
+  if (sh === null) return LRF_fail('vague', 'specialistHours');
+  var mh = LRF_isBlank(payload.managementHours) ? null : LRF_parseHours(payload.managementHours);
+  if (mh === null) return LRF_fail('vague', 'managementHours');
+  if (sh === 0 && mh === 0) return LRF_fail('vague', 'specialistHours');
+
+  // 3. Funding periods.
+  var rows = Array.isArray(payload.fundingPeriods) ? payload.fundingPeriods : [];
+  if (rows.length > LRF_RENEWAL_LIMITS.maxPeriodRows) return LRF_fail('vague', 'fundingPeriods', LRF_RENEWAL_LIMITS.maxPeriodRows);
+  var complete = 0;
+  for (var i = 0; i < rows.length; i++) {
+    var row = rows[i] || {};
+    if (LRF_isBlank(row.start) && LRF_isBlank(row.end) && LRF_isBlank(row.amount)) continue;
+    var s = LRF_parseDate(row.start), e = LRF_parseDate(row.end);
+    if (s === null || e === null || e <= s) return LRF_fail('dates', 'fundingPeriods', i);
+    var a = parseMoney(row.amount);
+    if (a === null) return LRF_fail('vague', 'fundingPeriods', i);
+    if (a === 0) return LRF_fail('zero', 'fundingPeriods', i);
+    complete++;
+  }
+  if (complete === 0) return LRF_fail('vague', 'fundingPeriods', 0);
+
+  // 4. Fund management.
+  var fm = payload.fundManagement;
+  if (fm !== 'NDIA-managed' && fm !== 'Plan-managed' && fm !== 'Self-managed') return LRF_fail('vague', 'fundManagement');
+  if (fm === 'Plan-managed') {
+    if (LRF_isVague(payload.planManagerEmail)) return LRF_fail('vague', 'planManagerEmail');
+    if (!LRF_validEmail(payload.planManagerEmail)) return LRF_fail('email', 'planManagerEmail');
+  }
+
+  // 5. Plan nominee and signer.
+  if (payload.noNominee !== true && LRF_isVague(payload.nomineeName)) return LRF_fail('vague', 'nomineeName');
+  if (LRF_isVague(payload.signerName)) return LRF_fail('vague', 'signerName');
+  if (LRF_isVague(payload.signerEmail)) return LRF_fail('vague', 'signerEmail');
+  if (!LRF_validEmail(payload.signerEmail)) return LRF_fail('email', 'signerEmail');
+
+  // Files (compulsory, 1 to 2).
+  var list = files.renewal;
+  if (!Array.isArray(list) || list.length === 0) return LRF_fail('filesRequired', 'files');
+  {
+    if (list.length > LRF_RENEWAL_LIMITS.maxFiles) {
+      return { ok: false, popup: 'files', field: 'files', message: LRF_MESSAGES.filesRenewal };
+    }
+    for (var k = 0; k < list.length; k++) {
+      var problem = LRF_checkFile(list[k]);
+      if (problem) return { ok: false, popup: 'files', field: 'files', message: problem };
+    }
+  }
+  return { ok: true };
+}
+
+// Auto extension funding form. Same result shape as validateSubmission. No uploads.
+function validateAutoExt(payload) {
+  payload = payload || {};
+  var a = LRF_validateMoneyField(payload.specialistFunding, 'specialistFunding');
+  if (a) return a;
+  var b = LRF_validateMoneyField(payload.managementFunding, 'managementFunding');
+  if (b) return b;
+  return { ok: true };
+}
+
+// File checks, shared by browser and server. Returns an error string or ''.
+function LRF_checkFile(file) {
+  if (!file || typeof file !== 'object') return 'Invalid file.';
+  var mime = LRF_str(file.mimeType).toLowerCase();
+  if (LRF_FILE_LIMITS.mimeTypes.indexOf(mime) === -1) {
+    return 'Only PNG, JPEG, WebP, HEIC and PDF files can be uploaded.';
+  }
+  return '';
+}
+
+function LRF_checkFileSize(bytes) {
+  return bytes > LRF_FILE_LIMITS.maxBytes ? 'Each file must be 8 MB or smaller.' : '';
+}
+
+function LRF_checkTotalSize(totalBytes) {
+  return totalBytes > LRF_FILE_LIMITS.maxTotalBytes ? LRF_MESSAGES.filesTotal : '';
+}
+
+function LRF_checkFileCount(count) {
+  return count > LRF_FILE_LIMITS.maxPerSection ? 'You can upload up to 3 files per section.' : '';
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    LRF_MESSAGES: LRF_MESSAGES,
+    LRF_FILE_LIMITS: LRF_FILE_LIMITS,
+    LRF_isVague: LRF_isVague,
+    LRF_parseHours: LRF_parseHours,
+    LRF_parseDate: LRF_parseDate,
+    LRF_checkFile: LRF_checkFile,
+    LRF_checkFileSize: LRF_checkFileSize,
+    LRF_checkFileCount: LRF_checkFileCount,
+    LRF_checkTotalSize: LRF_checkTotalSize,
+    LRF_RENEWAL_LIMITS: LRF_RENEWAL_LIMITS,
+    LRF_validEmail: LRF_validEmail,
+    validateRenewal: validateRenewal,
+    validateAutoExt: validateAutoExt,
+    validateSubmission: validateSubmission,
+    parseMoney: parseMoney
+  };
+}
+</script>
+<script>/* Local draft saving (IndexedDB only). Nothing here is ever sent anywhere, and nothing here touches analytics.
+   Every function fails silently: if IndexedDB is missing, blocked or errors, the form carries on normally. */
+var LRF_DRAFTS = (function () {
+  'use strict';
+  var DB = 'lrf-drafts', STORE = 'drafts', MAX_AGE = 30 * 24 * 60 * 60 * 1000;
+  var dbp = null, chain = Promise.resolve();
+
+  function open() {
+    if (dbp) return dbp;
+    dbp = new Promise(function (resolve) {
+      try {
+        var idb = window.indexedDB;
+        if (!idb) { resolve(null); return; }
+        var rq = idb.open(DB, 1);
+        rq.onupgradeneeded = function () {
+          try { rq.result.createObjectStore(STORE, { keyPath: 'token' }); } catch (e) {}
+        };
+        rq.onsuccess = function () { resolve(rq.result); };
+        rq.onerror = function () { resolve(null); };
+        rq.onblocked = function () { resolve(null); };
+      } catch (e) { resolve(null); }
+    });
+    return dbp;
+  }
+  /* Runs fn(store) in a transaction, one operation at a time, and always resolves (null on any problem). */
+  function run(mode, fn) {
+    var p = chain.then(function () {
+      return open().then(function (db) {
+        if (!db) return null;
+        return new Promise(function (resolve) {
+          try {
+            var tx = db.transaction(STORE, mode);
+            var out = null;
+            tx.oncomplete = function () { resolve(out); };
+            tx.onerror = tx.onabort = function () { resolve(null); };
+            fn(tx.objectStore(STORE), function (v) { out = v; });
+          } catch (e) { resolve(null); }
+        });
+      });
+    }).catch(function () { return null; });
+    chain = p;
+    return p;
+  }
+
+  function load(token) {
+    return run('readonly', function (store, set) {
+      var rq = store.get(token);
+      rq.onsuccess = function () { set(rq.result || null); };
+    });
+  }
+  function save(rec) { return run('readwrite', function (store) { store.put(rec); }); }
+  function remove(token) { return run('readwrite', function (store) { store.delete(token); }); }
+  /* Deletes every record older than 30 days. */
+  function cleanup() {
+    return run('readwrite', function (store) {
+      var rq = store.openCursor();
+      rq.onsuccess = function () {
+        var c = rq.result;
+        if (!c) return;
+        var v = c.value;
+        if (!v || typeof v.savedAt !== 'number' || Date.now() - v.savedAt >= MAX_AGE) c.delete();
+        c.continue();
+      };
+    });
+  }
+  function isFresh(rec) {
+    return !!rec && typeof rec.savedAt === 'number' && Date.now() - rec.savedAt < MAX_AGE && Date.now() - rec.savedAt > -86400000;
+  }
+
+  /* Reads the typed values and choices of a form (not file inputs, not the repeating rows). */
+  function collect(form, rowsEl, files, KEYS) {
+    var fields = {}, checks = {}, rows = [], f = {};
+    Array.prototype.forEach.call(form.querySelectorAll('input, textarea, select'), function (n) {
+      if (!n.id || n.type === 'file' || (rowsEl && rowsEl.contains(n))) return;
+      if (n.type === 'radio' || n.type === 'checkbox') checks[n.id] = !!n.checked;
+      else fields[n.id] = String(n.value);
+    });
+    if (rowsEl) {
+      Array.prototype.forEach.call(rowsEl.children, function (row) {
+        var o = {};
+        Array.prototype.forEach.call(row.querySelectorAll('input'), function (i) { o[i.getAttribute('data-f')] = i.value; });
+        rows.push({ start: o.start || '', end: o.end || '', amount: o.amount || '' });
+      });
+    }
+    KEYS.forEach(function (k) {
+      f[k] = (files[k] || []).filter(function (e) { return e && e.blob; })
+        .map(function (e) { return { name: e.name, type: e.mimeType, blob: e.blob }; });
+    });
+    return { fields: fields, checks: checks, rows: rows, files: f };
+  }
+  /* Puts a saved record back. hooks.setRows(rows) rebuilds the rows; hooks.addFiles(key, File[]) re-attaches files. */
+  function apply(form, rec, hooks, KEYS) {
+    if (hooks.setRows && rec.rows && rec.rows.length) hooks.setRows(rec.rows);
+    var fields = rec.fields || {}, checks = rec.checks || {};
+    Object.keys(fields).forEach(function (id) {
+      var n = document.getElementById(id);
+      if (n && form.contains(n) && n.type !== 'file' && n.type !== 'radio' && n.type !== 'checkbox') n.value = fields[id];
+    });
+    Object.keys(checks).forEach(function (id) {
+      var n = document.getElementById(id);
+      if (!n || !form.contains(n) || (n.type !== 'radio' && n.type !== 'checkbox')) return;
+      var was = n.checked;
+      n.checked = !!checks[id];
+      if (was !== n.checked) { try { n.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {} }
+    });
+    KEYS.forEach(function (k) {
+      var list = ((rec.files || {})[k] || []).map(function (e) {
+        try { return new File([e.blob], String(e.name || 'file'), { type: String(e.type || '') }); } catch (err) { return null; }
+      }).filter(Boolean);
+      if (list.length) hooks.addFiles(k, list);
+    });
+  }
+  return { open: open, load: load, save: save, remove: remove, cleanup: cleanup, isFresh: isFresh, collect: collect, apply: apply, MAX_AGE: MAX_AGE };
+})();
+</script>
+<script>
+(function () {
+  'use strict';
+  var API_URL = 'https://script.google.com/macros/s/AKfycbxfrdSKALuwZJayL_VPfhD5zF1tmkIrS91k7_keN91IvoKKdMWeR1xnjR5k0LKjKkvysQ/exec';
+  var TOKEN = '';
+  try { TOKEN = new URLSearchParams(window.location.search).get('t') || ''; } catch (e) { TOKEN = ''; }
+  var submitting = false, lastFocus = null, afterClose = null;
+
+  function A(m, a) { try { if (window.LRF_ANALYTICS) window.LRF_ANALYTICS[m](a); } catch (e) {} }
+  function $(id) { return document.getElementById(id); }
+
+  /* ---- save and restore progress (IndexedDB on this device only; never sent anywhere) ---- */
+  var D = window.LRF_DRAFTS, draftReady = false, draftDead = false, dirty = false, saveTimer = null;
+  function draftSave() {
+    saveTimer = null;
+    if (!D || !draftReady || draftDead || !dirty || !TOKEN) return;
+    try {
+      var rec = D.collect($('form'), null, {}, []);
+      rec.token = TOKEN;
+      rec.savedAt = Date.now();
+      dirty = false;
+      D.save(rec);
+    } catch (e) {}
+  }
+  function scheduleSave() {
+    dirty = true;
+    if (!draftReady || draftDead) return;
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(draftSave, 800);
+  }
+  function saveNow() {
+    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+    draftSave();
+  }
+  function dropDraft() {
+    draftDead = true;
+    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+    try { if (D && TOKEN) D.remove(TOKEN); } catch (e) {}
+  }
+  function startDrafts() {
+    try {
+      if (!D || !TOKEN) return;
+      D.cleanup();
+      D.load(TOKEN).then(function (rec) {
+        try {
+          if (rec && !D.isFresh(rec)) { D.remove(TOKEN); rec = null; }
+          if (rec && !dirty && !draftDead) {
+            D.apply($('form'), rec, {}, []);
+            $('restoreNotice').hidden = false;
+            dirty = false;
+          }
+        } catch (e) {}
+        draftReady = true;
+      });
+    } catch (e) {}
+  }
+  document.addEventListener('input', scheduleSave, true);
+  document.addEventListener('change', scheduleSave, true);
+  window.addEventListener('pagehide', saveNow);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') saveNow(); });
+  $('restoreDismiss').addEventListener('click', function () { $('restoreNotice').hidden = true; });
+
+  /* ---- page load: check the token ---- */
+  var MSG_NO_LINK = 'Please use the personal link in the email we sent you to open this form.';
+  function showMessage(text) {
+    $('loading').hidden = true;
+    $('formArea').hidden = true;
+    $('message').textContent = text;
+    $('message').hidden = false;
+  }
+  function showForm() {
+    $('loading').hidden = true;
+    $('formArea').hidden = false;
+    startDrafts();
+    try { if (window.LRF_ANALYTICS) window.LRF_ANALYTICS.start('autoext', API_URL); } catch (e) {}
+  }
+  if (!TOKEN) {
+    showMessage(MSG_NO_LINK);
+  } else {
+    var loadFailed = function () {
+      showMessage('We couldn\'t load the form. Please check your connection and refresh the page.');
+    };
+    try {
+      fetch(API_URL + '?api=status&t=' + encodeURIComponent(TOKEN), { credentials: 'omit' })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          var st = res && res.status;
+          if (!res || res.type !== 'autoext') { if (st === 'invalid') dropDraft(); showMessage(MSG_NO_LINK); }
+          else if (st === 'open') showForm();
+          else if (st === 'submitted') { dropDraft(); showMessage('Thank you. We have already received this form.'); }
+          else { dropDraft(); showMessage(MSG_NO_LINK); }
+        })
+        .catch(loadFailed);
+    } catch (err) { loadFailed(); }
+  }
+
+  /* ---- modal ---- */
+  function showModal(message, cb) {
+    lastFocus = document.activeElement;
+    afterClose = cb || null;
+    $('modalMsg').textContent = message;
+    $('overlay').hidden = false;
+    $('modalOk').focus();
+  }
+  function closeModal() {
+    if ($('overlay').hidden) return;
+    $('overlay').hidden = true;
+    var cb = afterClose;
+    afterClose = null;
+    if (cb) cb(); else if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  $('modalOk').addEventListener('click', closeModal);
+  $('overlay').addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); closeModal(); }
+    else if (e.key === 'Tab') { e.preventDefault(); $('modalOk').focus(); }
+  });
+
+  /* ---- payload and failure focus ---- */
+  function collect() {
+    return {
+      token: TOKEN,
+      formType: 'autoext',
+      specialistFunding: $('specialistFunding').value,
+      managementFunding: $('managementFunding').value
+    };
+  }
+  function clearInvalid() {
+    Array.prototype.forEach.call(document.querySelectorAll('.invalid'), function (n) {
+      n.classList.remove('invalid');
+      n.removeAttribute('aria-invalid');
+    });
+  }
+  function focusFailure(result) {
+    var t = $(result.field);
+    if (!t) return;
+    t.classList.add('invalid');
+    t.setAttribute('aria-invalid', 'true');
+    t.focus();
+    if (t.scrollIntoView) t.scrollIntoView({ block: 'center' });
+  }
+
+  /* ---- submit ---- */
+  var GENERIC = 'Sorry, something went wrong and your form was not submitted. Your answers have been kept. Please check your connection and try again.';
+  function setBusy(b) {
+    submitting = b;
+    $('submitBtn').disabled = b;
+    $('status').textContent = b ? 'Submitting, please wait...' : '';
+  }
+  $('submitBtn').addEventListener('click', function () { A('event', 'submit_attempt'); });
+  $('form').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    if (submitting) return;
+    clearInvalid();
+    var payload = collect();
+    var result = validateAutoExt(payload);
+    if (!result.ok) {
+      try { if (window.LRF_ANALYTICS) window.LRF_ANALYTICS.event('popup', { popup: result.popup, field: result.field }); } catch (e) {}
+      showModal(result.message || LRF_MESSAGES[result.popup] || GENERIC, function () { focusFailure(result); });
+      return;
+    }
+    setBusy(true);
+    var done = false;
+    function fail(res) {
+      if (done) return;
+      done = true;
+      setBusy(false);
+      var msg = GENERIC;
+      if (res && res.popup === 'invalid') msg = 'This link is not valid. Please use the personal link from our email.';
+      else if (res && res.message) msg = res.message;
+      else if (res && res.popup && LRF_MESSAGES[res.popup]) msg = LRF_MESSAGES[res.popup];
+      try { if (window.LRF_ANALYTICS && res && res.popup) window.LRF_ANALYTICS.event('popup', { popup: res.popup, field: res.field }); } catch (e) {}
+      showModal(msg, res && res.field ? function () { focusFailure(res); } : null);
+    }
+    var req;
+    try {
+      req = fetch(API_URL, { method: 'POST', body: JSON.stringify(payload), credentials: 'omit', redirect: 'follow' })
+        .then(function (r) { return r.json(); });
+    } catch (err) {
+      fail(null);
+      return;
+    }
+    req.then(function (res) {
+      if (done) return;
+      if (res && res.ok) {
+        done = true;
+        dropDraft();
+        setBusy(false);
+        $('formArea').hidden = true;
+        $('thanks').hidden = false;
+        try { if (window.LRF_ANALYTICS) { window.LRF_ANALYTICS.event('submit_success'); window.LRF_ANALYTICS.flush(); } } catch (e) {}
+        $('thanks').focus();
+        window.scrollTo(0, 0);
+      } else {
+        fail(res);
+      }
+    }, function () { fail(null); });
+  });
+})();
+</script>
+<script>/* Liberty form analytics: element keys, coordinates and timings only. Never records typed or chosen values. */
+(function () {
+  'use strict';
+  var MAX_EVENTS = 300, RESERVE = 10, FLUSH_MS = 15000;
+  var INTERACTIVE = 'a,button,input,select,textarea,label,summary,[role=button],[tabindex]';
+  var started = false, formType = '', apiUrl = '', session = '', device = '', t0 = 0;
+  var queue = [], total = 0, container = null;
+  var maxDepth = 0, sentDepth = 0, curSection = '', sectionAt = 0, lastSection = 'none';
+  var clicks = [], submitted = false, timer = null, left = false;
+
+  function now() { return Date.now(); }
+  function T() { return Math.max(0, Math.round(now() - t0)); }
+  function clamp(n, lo, hi) { n = Number(n); if (!isFinite(n)) return lo; return Math.min(hi, Math.max(lo, n)); }
+  function r3(n) { return Math.round(clamp(n, 0, 1) * 1000) / 1000; }
+  function safeKey(s) { return (typeof s === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(s)) ? s : null; }
+
+  function makeSession() {
+    var a = new Uint8Array(8), s = '';
+    crypto.getRandomValues(a);
+    for (var i = 0; i < a.length; i++) s += ('0' + a[i].toString(16)).slice(-2);
+    return s;
+  }
+
+  function push(ev, final) {
+    var limit = final ? MAX_EVENTS : MAX_EVENTS - RESERVE;
+    if (total >= limit) return;
+    total++;
+    queue.push(ev);
+  }
+  function add(type, props, final) {
+    var ev = { type: type, t: T() };
+    for (var k in props) { if (Object.prototype.hasOwnProperty.call(props, k)) ev[k] = props[k]; }
+    push(ev, final);
+  }
+
+  function send(body) {
+    var ok = false;
+    try {
+      if (navigator.sendBeacon) ok = navigator.sendBeacon(apiUrl, new Blob([body], { type: 'text/plain' }));
+    } catch (e) { ok = false; }
+    if (!ok) {
+      try { fetch(apiUrl, { method: 'POST', body: body, credentials: 'omit', keepalive: true }); } catch (e2) {}
+    }
+  }
+  function flush() {
+    try {
+      if (!started || !queue.length) return;
+      var events = queue;
+      queue = [];
+      send(JSON.stringify({ kind: 'analytics', formType: formType, session: session, device: device, events: events }));
+    } catch (e) {}
+  }
+
+  function sectionOf(node) {
+    var fs = node && node.closest ? node.closest('fieldset') : null;
+    var s = fs ? fs.getAttribute('data-section') : null;
+    return safeKey(s) || 'none';
+  }
+  function keyEl(node) {
+    var e = node && node.closest ? node.closest('[id]') : null;
+    return e && safeKey(e.id) ? e : null;
+  }
+
+  function closeSection() {
+    if (curSection) add('section_time', { section: curSection, ms: Math.max(0, Math.round(now() - sectionAt)) });
+  }
+  function enterSection(sec) {
+    if (!sec || sec === 'none' || sec === curSection) return;
+    closeSection();
+    curSection = sec;
+    lastSection = sec;
+    sectionAt = now();
+    add('focus_section', { section: sec });
+  }
+
+  function checkScroll() {
+    if (!container) return;
+    var r = container.getBoundingClientRect();
+    var h = r.height;
+    if (!(h > 0)) return;
+    var depth = clamp((window.innerHeight - r.top) / h, 0, 1);
+    if (depth > maxDepth) maxDepth = depth;
+    if (maxDepth - sentDepth >= 0.05) {
+      sentDepth = maxDepth;
+      add('scroll', { depth: r3(maxDepth) });
+    }
+  }
+
+  function onClick(ev) {
+    try {
+      if (!started) return;
+      var tgt = ev.target;
+      if (!tgt || !tgt.closest) tgt = tgt && tgt.parentElement;
+      if (!tgt) return;
+      var kel = keyEl(tgt);
+      var key = kel ? kel.id : 'page';
+      var section = sectionOf(tgt);
+      var cx = ev.clientX, cy = ev.clientY, rx, ry;
+      if (kel) {
+        var kr = kel.getBoundingClientRect();
+        rx = kr.width > 0 ? (cx - kr.left) / kr.width : 0;
+        ry = kr.height > 0 ? (cy - kr.top) / kr.height : 0;
+      } else {
+        var de = document.documentElement;
+        rx = de.scrollWidth > 0 ? (cx + window.pageXOffset) / de.scrollWidth : 0;
+        ry = de.scrollHeight > 0 ? (cy + window.pageYOffset) / de.scrollHeight : 0;
+      }
+      var cr = container.getBoundingClientRect();
+      var px = cr.width > 0 ? (cx - cr.left) / cr.width : 0;
+      var py = clamp(cy - cr.top, 0, 20000);
+      var n = now();
+      clicks = clicks.filter(function (c) { return n - c.n <= 1000; });
+      var near = clicks.filter(function (c) { return Math.abs(c.x - cx) <= 30 && Math.abs(c.y - cy) <= 30; });
+      var rage = near.length >= 2;
+      clicks.push({ n: n, x: cx, y: cy });
+      add('click', {
+        key: key, section: section, rx: r3(rx), ry: r3(ry), px: r3(px), py: Math.round(py),
+        dead: !tgt.closest(INTERACTIVE), rage: rage
+      });
+      enterSection(section);
+    } catch (e) {}
+  }
+  function onFocusIn(ev) {
+    try { if (started) enterSection(sectionOf(ev.target)); } catch (e) {}
+  }
+  function onPageHide() {
+    try {
+      if (!started || left) return;
+      left = true;
+      closeSection();
+      curSection = '';
+      add('leave', { last_section: lastSection, max_scroll: r3(maxDepth), submitted: submitted }, true);
+      flush();
+    } catch (e) {}
+  }
+  function onVisibility() {
+    try { if (document.visibilityState === 'hidden') flush(); } catch (e) {}
+  }
+
+  function start(type, url) {
+    try {
+      if (started) return;
+      if (type !== 'referral' && type !== 'renewal' && type !== 'autoext') return;
+      if (typeof url !== 'string' || !url) return;
+      started = true;
+      formType = type;
+      apiUrl = url;
+      session = makeSession();
+      t0 = now();
+      container = document.getElementById('formArea') || document.body;
+      var w = window.innerWidth || 0;
+      device = w < 600 ? 'phone' : (w < 1024 ? 'tablet' : 'computer');
+      add('view', { device: device, vw: Math.round(w), vh: Math.round(window.innerHeight || 0) });
+      document.addEventListener('click', onClick, true);
+      document.addEventListener('focusin', onFocusIn, true);
+      window.addEventListener('scroll', function () { try { checkScroll(); } catch (e) {} }, { passive: true });
+      window.addEventListener('pagehide', onPageHide);
+      document.addEventListener('visibilitychange', onVisibility);
+      timer = setInterval(flush, FLUSH_MS);
+      checkScroll();
+    } catch (e) {}
+  }
+
+  function event(type, data) {
+    try {
+      if (!started) return;
+      if (type === 'popup') {
+        var p = safeKey(data && data.popup);
+        if (!p) return;
+        var props = { popup: p };
+        var f = safeKey(data && data.field);
+        if (f) props.field = f;
+        add('popup', props);
+      } else if (type === 'submit_attempt') {
+        add('submit_attempt', {});
+      } else if (type === 'submit_success') {
+        submitted = true;
+        add('submit_success', {}, true);
+      }
+    } catch (e) {}
+  }
+
+  window.LRF_ANALYTICS = { start: start, event: event, flush: flush };
+})();
+</script>
+</body>
+</html>
