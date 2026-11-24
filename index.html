@@ -369,6 +369,16 @@ function validateRenewal(payload) {
   return { ok: true };
 }
 
+// Auto extension funding form. Same result shape as validateSubmission. No uploads.
+function validateAutoExt(payload) {
+  payload = payload || {};
+  var a = LRF_validateMoneyField(payload.specialistFunding, 'specialistFunding');
+  if (a) return a;
+  var b = LRF_validateMoneyField(payload.managementFunding, 'managementFunding');
+  if (b) return b;
+  return { ok: true };
+}
+
 // File checks, shared by browser and server. Returns an error string or ''.
 function LRF_checkFile(file) {
   if (!file || typeof file !== 'object') return 'Invalid file.';
@@ -405,6 +415,7 @@ if (typeof module !== 'undefined' && module.exports) {
     LRF_RENEWAL_LIMITS: LRF_RENEWAL_LIMITS,
     LRF_validEmail: LRF_validEmail,
     validateRenewal: validateRenewal,
+    validateAutoExt: validateAutoExt,
     validateSubmission: validateSubmission,
     parseMoney: parseMoney
   };
@@ -751,10 +762,11 @@ var LRF_DRAFTS = (function () {
         .then(function (r) { return r.json(); })
         .then(function (res) {
           var st = res && res.status;
-          if (res && res.type === 'renewal') st = 'invalid';
+          var other = !!(res && res.type && res.type !== 'referral');
+          if (other) st = 'invalid';
           if (st === 'open') showForm();
           else if (st === 'submitted') { dropDraft(); showMessage('Thank you. We have already received this form.'); }
-          else { if (!(res && res.type === 'renewal')) dropDraft(); showMessage(MSG_NO_LINK); }
+          else { if (!other) dropDraft(); showMessage(MSG_NO_LINK); }
         })
         .catch(loadFailed);
     } catch (err) { loadFailed(); }
@@ -1037,7 +1049,7 @@ var LRF_DRAFTS = (function () {
   function start(type, url) {
     try {
       if (started) return;
-      if (type !== 'referral' && type !== 'renewal') return;
+      if (type !== 'referral' && type !== 'renewal' && type !== 'autoext') return;
       if (typeof url !== 'string' || !url) return;
       started = true;
       formType = type;
